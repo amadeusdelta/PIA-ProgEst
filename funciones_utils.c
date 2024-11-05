@@ -33,7 +33,7 @@ void registro_proy()
 void registro_emp()
 {
     FILE *archivo;
-    archivo = fopen("registro_proyectos.dat", "ab+");
+    archivo = fopen("registro_empleados.dat", "ab+");
     if (archivo = NULL)
     {
         printf("\nProblemas para abrir el archivo...");
