@@ -4,6 +4,7 @@
 #include <string.h>
 
 // Estructura para el registro de proyectos
+
 typedef struct
 {
     char clave_proy[10];
