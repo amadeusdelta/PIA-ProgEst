@@ -99,11 +99,12 @@ void registro_emp()
 }
 
 // Da de baja un proyecto y todos los empleados asociados a este
-void baja_proy()
+void baja_proyecto()
 {
+    // num_empleados_proyecto es el numero de empleados asociados al proyecto seleccionado
     FILE *reg_empleados, *reg_proyectos;
     char clave_proyecto[10];
-    int i;
+    int i, num_empleados_proyecto;
     int num_proyectos = obtener_num(1);
     int num_empleados = obtener_num(2);
     reg_proyectos = fopen("reg_proyectos.dat", "rb+");
@@ -151,10 +152,12 @@ void baja_proy()
     }
     // Modifica registros_empleados.dat, eliminando los empleados asociados a
     // El proyecto con la clave dada
+    num_empleados_proyecto = 0;
     for (int i = 0; i < num_empleados; i++)
     {
         if (strcmp(empleados[i].clave_proy, clave_proyecto) == 0)
         {
+            num_empleados_proyecto++;
             continue;
         }
         else
@@ -165,8 +168,91 @@ void baja_proy()
 
     fclose(reg_empleados);
     fclose(reg_proyectos);
+
+    // Modificamos la cantidad de empleados y de proyectos en los archivos de contadores
+    FILE *contador_empleados, *contador_proyectos;
+    contador_empleados = fopen("contador_proyectos.txt", "w");
+    contador_proyectos = fopen("contador_empleados.txt", "w");
+    if (contador_empleados == NULL || contador_proyectos == NULL)
+    {
+        printf("\nNo se pudieron actualizar los archivos de contadores\n\n");
+    }
+    else
+    {
+        fprintf(contador_empleados, "%d\n", num_empleados - num_empleados_proyecto);
+        fprintf(contador_proyectos, "%d\n", num_proyectos - 1);
+    }
+    fclose(contador_empleados);
+    fclose(contador_proyectos);
 }
 
+// Da de baja un empleado
+void baja_empleado()
+{
+    // num_empleados_proyecto es el numero de empleados asociados al proyecto seleccionado
+    FILE *reg_empleados;
+    char clave_proyecto[10];
+    int i, num_emp;
+    int num_empleados = obtener_num(2);
+    reg_empleados = fopen("reg_empleados.dat", "rb+");
+    if (reg_empleados == NULL)
+    {
+        printf("\nEl empleado no se pudo dar de baja");
+        return;
+    }
+
+    // Carga los empleados a memoria
+    EMPLEADO empleados[num_empleados];
+    fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
+
+    fclose(reg_empleados);
+
+    // Abrimos los archivos en escritura, borrando todos los datos para sobreescribirlos
+
+    reg_empleados = fopen("reg_empleados.dat", "wb+");
+    if (reg_empleados == NULL)
+    {
+        printf("\nEl proyecto no se pudo dar de baja");
+        return;
+    }
+
+    printf("Ingrese la clave del proyecto: ");
+    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+    clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+
+    printf("Ingrese el numero del empleado: ");
+    scanf("%d", &num_emp);
+
+    // Modifica registros_empleados.dat, eliminando los empleados asociados a
+    // El proyecto con la clave dada
+    for (int i = 0; i < num_empleados; i++)
+    {
+        if ((strcmp(empleados[i].clave_proy, clave_proyecto) == 0) && (empleados[i].num_emp == num_emp))
+        {
+            continue;
+        }
+        else
+        {
+            fwrite(&empleados[i], sizeof(EMPLEADO), 1, reg_empleados);
+        }
+    }
+
+    fclose(reg_empleados);
+
+    // Modificamos la cantidad de empleados en el archivo de contadores
+    FILE *contador_empleados;
+    contador_empleados = fopen("contador_proyectos.txt", "w");
+    if (contador_empleados)
+    {
+        printf("\nNo se pudieron actualizar los archivos de contadores\n\n");
+        return;
+    }
+    else
+    {
+        fprintf(contador_empleados, "%d\n", num_empleados - 1);
+    }
+    fclose(contador_empleados);
+}
 // Función para registrar una nómina
 void registrar_nomina()
 {

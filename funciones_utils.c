@@ -3,6 +3,7 @@
 #include <string.h>
 
 void imprimir_empleado(EMPLEADO empleado);
+void imprimir_empleado(EMPLEADO empleado);
 
 // La opcion 1 obtiene el numero de proyectos, la 2 el numero de empleados
 int obtener_num(int opc)
@@ -45,11 +46,6 @@ int obtener_num(int opc)
     fclose(archivo_contador);
     return num;
 }
-
-
-void baja_emp() {
-
-};
 
 // Dada la clave del proyecto y el numero de empleado, retorna el
 //  Empleado asociado a este
@@ -150,4 +146,3 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
     printf("\nNo se pudo encontrar al empleado seleccionado");
     return null_proyecto;
 }
-
