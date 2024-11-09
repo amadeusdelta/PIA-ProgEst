@@ -22,13 +22,20 @@ typedef struct
     char curp[18];
     int fecha_nac;
     char correo[20];
-    int telefono;
+    char telefono[10];
+    int perfil;
     float tarifa_h;
+    float tarifa_mensual;
     DIRECCION direccion;
 } EMPLEADO;
 
 typedef struct
 {
+    char calle[30];
+    char colonia[30];
+    int numero;
+    int CP;
+    char municipio[30];
 } DIRECCION;
 
 // Estructura para el registro de usuarios

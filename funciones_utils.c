@@ -146,3 +146,4 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
     printf("\nNo se pudo encontrar al empleado seleccionado");
     return null_proyecto;
 }
+

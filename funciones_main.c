@@ -59,32 +59,57 @@ void registro_emp()
 
     /*Capturar los datos en la estructura*/
     EMPLEADO empleado;
-    printf("\nIngrese la clave del proyecto: ");
+    printf("Ingrese clave del proyecto (máximo 10 caracteres): ");
     scanf("%9s", empleado.clave_proy);
 
-    printf("\nIngrese el número de empleado: ");
+    printf("Ingrese número de empleado: ");
     scanf("%d", &empleado.num_emp);
 
-    printf("\nIngrese el nombre del empleado: ");
-    scanf(" %29[^\n]", empleado.nombre);
+    printf("Ingrese nombre (máximo 30 caracteres): ");
+    scanf(" %[^\n]%*c", empleado.nombre);
 
-    printf("\nIngrese el CURP: ");
+    printf("Ingrese CURP (máximo 18 caracteres): ");
     scanf("%17s", empleado.curp);
 
-    printf("\nIngrese la fecha de nacimiento (YYYYMMDD): ");
+    printf("Ingrese fecha de nacimiento (AAAAMMDD): ");
     scanf("%d", &empleado.fecha_nac);
 
-    printf("\nIngrese el correo electrónico: ");
+    printf("Ingrese correo electrónico (máximo 20 caracteres): ");
     scanf("%19s", empleado.correo);
 
-    printf("\nIngrese el número de teléfono: ");
-    scanf("%d", &empleado.telefono);
+    printf("Ingrese teléfono (máximo 10 caracteres): ");
+    scanf("%9s", empleado.telefono);
 
-    printf("\nIngrese el número de teléfono: ");
-    scanf("%d", &empleado.telefono);
+    printf("Seleccione el perfil:\n");
+    printf("1.- Líder de proyecto\n");
+    printf("2.- Administrador de Base de Datos\n");
+    printf("3.- Analista\n");
+    printf("4.- Programador\n");
+    printf("5.- Tester\n");
+    printf("Ingrese el número correspondiente al perfil: ");
+    scanf("%d", &empleado.perfil);
 
-    printf("\nIngrese la tarifa por hora del empleado: ");
+    printf("Ingrese tarifa por hora: ");
     scanf("%f", &empleado.tarifa_h);
+
+    printf("Ingrese tarifa mensual: ");
+    scanf("%f", &empleado.tarifa_mensual);
+
+    printf("Ingrese dirección:\n");
+    printf("Calle (máximo 30 caracteres): ");
+    scanf(" %[^\n]%*c", empleado.direccion.calle);
+
+    printf("Colonia (máximo 30 caracteres): ");
+    scanf(" %[^\n]%*c", empleado.direccion.colonia);
+
+    printf("Número: ");
+    scanf("%d", &empleado.direccion.numero);
+
+    printf("Código Postal: ");
+    scanf("%d", &empleado.direccion.CP);
+
+    printf("Municipio (máximo 30 caracteres): ");
+    scanf(" %[^\n]%*c", empleado.direccion.municipio);
 
     /*capturar datos en el archivo de registros*/
     fwrite(&empleado, sizeof(EMPLEADO), 1, reg_empleados);
