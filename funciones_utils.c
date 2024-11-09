@@ -1,46 +1,7 @@
 #include <stdio.h>
 #include <structs.h>
 
-int obtener_num(int opc)
-{
-    FILE *archivo_contador;
-    int num_pacientes;
-    char nombre_archivo[20];
-    switch (opc)
-    {
-    case 1:
-        strcpy(nombre_archivo, "contador_proyectos.txt");
-        break;
-    case 2:
-        strcpy(nombre_archivo, "contador_empleados.txt");
-    default:
-        printf("\nOpción invalida ingresada para archivo de contadores.");
-    }
-    archivo_contador = fopen(nombre_archivo, "r+");
-    if (archivo_contador == NULL)
-    {
-        archivo_contador = fopen(nombre_archivo, "w+");
-        if (archivo_contador == NULL)
-        {
-            printf("Error abriendo %s\n", nombre_archivo);
-            return 0;
-        }
-        fprintf(archivo_contador, "0\n");
-        num_pacientes = 0;
-    }
-    else if (fgetc(archivo_contador) == EOF)
-    {
-        fprintf(archivo_contador, "0\n");
-        num_pacientes = 0;
-    }
-    else
-    {
-        rewind(archivo_contador);
-        fscanf(archivo_contador, "%d\n", &num_pacientes);
-    }
-    fclose(archivo_contador);
-    return num_pacientes;
-}
+void imprimir_empleado(EMPLEADO empleado);
 
 void registro_proy()
 {
@@ -97,26 +58,32 @@ void registro_emp()
 
     /*Capturar los datos en la estructura*/
     EMPLEADO empleado;
-    printf("Ingrese la clave del proyecto: ");
+    printf("\nIngrese la clave del proyecto: ");
     scanf("%9s", empleado.clave_proy);
 
-    printf("Ingrese el número de empleado: ");
+    printf("\nIngrese el número de empleado: ");
     scanf("%d", &empleado.num_emp);
 
-    printf("Ingrese el nombre del empleado: ");
+    printf("\nIngrese el nombre del empleado: ");
     scanf(" %29[^\n]", empleado.nombre);
 
-    printf("Ingrese el CURP: ");
+    printf("\nIngrese el CURP: ");
     scanf("%17s", empleado.curp);
 
-    printf("Ingrese la fecha de nacimiento (YYYYMMDD): ");
+    printf("\nIngrese la fecha de nacimiento (YYYYMMDD): ");
     scanf("%d", &empleado.fecha_nac);
 
-    printf("Ingrese el correo electrónico: ");
+    printf("\nIngrese el correo electrónico: ");
     scanf("%19s", empleado.correo);
 
-    printf("Ingrese el número de teléfono: ");
+    printf("\nIngrese el número de teléfono: ");
     scanf("%d", &empleado.telefono);
+
+    printf("\nIngrese el número de teléfono: ");
+    scanf("%d", &empleado.telefono);
+
+    printf("\nIngrese la tarifa por hora del empleado: ");
+    scanf("%f", &empleado.tarifa_h);
 
     /*capturar datos en el archivo de registros*/
     fwrite(&empleado, sizeof(EMPLEADO), 1, reg_empleados);
@@ -134,7 +101,7 @@ void registro_emp()
 int obtener_num(int opc)
 {
     FILE *archivo_contador;
-    int num_pacientes;
+    int num;
     char nombre_archivo[20];
     switch (opc)
     {
@@ -156,22 +123,23 @@ int obtener_num(int opc)
             return 0;
         }
         fprintf(archivo_contador, "0\n");
-        num_pacientes = 0;
+        num = 0;
     }
     else if (fgetc(archivo_contador) == EOF)
     {
         fprintf(archivo_contador, "0\n");
-        num_pacientes = 0;
+        num = 0;
     }
     else
     {
         rewind(archivo_contador);
-        fscanf(archivo_contador, "%d\n", &num_pacientes);
+        fscanf(archivo_contador, "%d\n", &num);
     }
     fclose(archivo_contador);
-    return num_pacientes;
+    return num;
 }
 
+// Da de baja un proyecto y todos los empleados asociados a este
 void baja_proy()
 {
     FILE *reg_empleados, *reg_proyectos;
@@ -243,3 +211,143 @@ void baja_proy()
 void baja_emp() {
 
 };
+
+// Dada la clave del proyecto y el numero de empleado, retorna el
+//  Empleado asociado a este
+EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
+{
+    int i, num_empleados;
+    FILE *reg_empleados;
+    EMPLEADO empleados[num_empleados];
+
+    reg_empleados = fopen("registros_empleados.dat", "rb+");
+    num_empleados = obtener_num(2);
+
+    if (reg_empleados == NULL)
+    {
+        printf("No se pudo abrir el archivo correctamente");
+        return null_empleado;
+    }
+
+    for (i = 0; i < num_empleados; i++)
+    {
+        // Verifica si el empleado esta asociado con el proyecto y tiene el
+        //  Numero de empleado correcto
+        if ((strcmp(empleados[i].clave_proy, clave_proyecto) == 0) && (empleados[i].num_emp == num_emp))
+        {
+            return empleados[i];
+        }
+    }
+
+    printf("\nNo se pudo encontrar al empleado seleccionado");
+    return null_empleado;
+}
+
+// Da un array con todos los empleados asociados a un proyecto determinado
+EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
+{
+    int i, j = 0, num_empleados;
+    FILE *reg_empleados;
+    EMPLEADO empleados[MAX_EMPLEADOS];
+    EMPLEADO *empleados_proyecto;
+    empleados_proyecto = malloc(sizeof(EMPLEADO) * MAX_EMPLEADOS);
+
+    reg_empleados = fopen("registros_empleados.dat", "rb+");
+    if (reg_empleados == NULL)
+    {
+        printf("No se pudo abrir el archivo correctamente\n");
+        free(empleados_proyecto);
+        return &null_empleado; // Retorna un puntero al empleado nulo
+    }
+
+    num_empleados = obtener_num(2);
+    fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
+    fclose(reg_empleados);
+
+    // Llenar empleados_proyecto solo con los empleados que pertenecen al proyecto
+    for (i = 0; i < num_empleados; i++)
+    {
+        if (strcmp(empleados[i].clave_proy, clave_proyecto) == 0)
+        {
+            empleados_proyecto[j++] = empleados[i]; // Agrega el empleado al arreglo y aumenta el índice
+        }
+    }
+
+    // Verificar si no se encontró ningún empleado asociado al proyecto
+    if (j == 0)
+    {
+        free(empleados_proyecto);
+        return &null_empleado; // Retorna un puntero al empleado "nulo" si no hay coincidencias
+    }
+
+    return empleados_proyecto; // Retorna el arreglo de empleados asociados al proyecto
+}
+
+PROYECTO buscar_proyecto(char clave_proyecto[10])
+{
+    int i, num_proyectos;
+    FILE *reg_proyectos;
+    PROYECTO proyectos[num_proyectos];
+
+    reg_proyectos = fopen("registros_proyectos.dat", "rb+");
+    num_proyectos = obtener_num(1);
+
+    if (reg_proyectos == NULL)
+    {
+        printf("No se pudo abrir el archivo correctamente");
+        return null_proyecto;
+    }
+
+    for (i = 0; i < num_proyectos; i++)
+    {
+        // Verifica si el empleado esta asociado con el proyecto y tiene el
+        //  Numero de empleado correcto
+        if ((strcmp(proyectos[i].clave_proy, clave_proyecto) == 0))
+        {
+            return proyectos[i];
+        }
+    }
+
+    printf("\nNo se pudo encontrar al empleado seleccionado");
+    return null_proyecto;
+}
+
+// Función para registrar una nómina
+void registrar_nomina()
+{
+    int mes, ano, num_empleados;
+    float total_nomina = 0;
+    char clave_proyecto[10];
+    EMPLEADO *empleados_proyecto;
+    num_empleados = obtener_num(2);
+
+    printf("\nMes: ");
+    scanf("%d", &mes);
+    printf("\nAno: ");
+    scanf("%d", &ano);
+
+    printf("\nClave_proyecto: ");
+    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+    clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+
+    if ((buscar_proyecto(clave_proyecto).clave_proy == ""))
+    {
+        printf("\nEl proyecto no existe");
+        return;
+    }
+
+    empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
+    printf("\nIngrese el numero de horas trabajadas para los empleados asociados al proyecto\n\n");
+
+    int horas_trabajadas;
+    for (int i = 0; i < num_empleados; i++)
+    {
+        printf("No empleado: %d  %s", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre);
+        printf("\nHoras trabajadas: ");
+        scanf("%f", &horas_trabajadas);
+
+        total_nomina += horas_trabajadas * empleados_proyecto[i].tarifa_h;
+    }
+
+    printf("\nTotal de nomina: %f", total_nomina);
+}
