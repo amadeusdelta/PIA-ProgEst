@@ -9,6 +9,7 @@ typedef struct
     char clave_proy[10];
     char nom[30];
     float monto;
+    int empleados_registrados;
     int fecha_i;
     int fecha_f;
 } PROYECTO;

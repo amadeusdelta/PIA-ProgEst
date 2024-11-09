@@ -306,7 +306,7 @@ void registrar_nomina()
     printf("\nIngrese el numero de horas trabajadas para los empleados asociados al proyecto\n\n");
 
     int horas_trabajadas;
-    for (int i = 0; i < num_empleados; i++)
+    for (int i = 0; i < MAX_EMPLEADOS; i++)
     {
         printf("No empleado: %d  %s", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre);
         printf("\nHoras trabajadas: ");
@@ -317,3 +317,23 @@ void registrar_nomina()
 
     printf("\nTotal de nomina: %f", total_nomina);
 }
+
+void lista_proyectos_act()
+{
+    char clave_proyecto[10];
+    PROYECTO proyecto;
+    EMPLEADO *empleados_proyecto;
+    printf("Ingrese la clave del proyecto: ");
+    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+    clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+    proyecto = buscar_proyecto(clave_proyecto);
+    empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
+    printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
+    for (size_t i = 0; i < count; i++)
+    {
+        /* code */
+    }
+}
+
+// Hay un gran problema en el codigo, no estoy seguro de cuantos empleados hay asociados a cada
+// Puedo inicializar los valores en el arreglo 
