@@ -3,8 +3,6 @@
 #ifndef MAX_EMPLEADOS
 #define MAX_EMPLEADOS 100
 
-#include <string.h>
-
 // Estructura para el registro de proyectos
 typedef struct
 {
