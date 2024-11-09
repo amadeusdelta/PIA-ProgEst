@@ -39,7 +39,7 @@ void registro_proy()
     /*Actualizar el contador*/
 
     rewind(cont_proyectos);
-    fprintf(cont_proyectos, "%d\n", num_proyectos);
+    fprintf(cont_proyectos, "%d\n", num_proyectos + 1);
 
     fclose(reg_proyectos);
     fclose(cont_proyectos);
@@ -117,7 +117,7 @@ void registro_emp()
     /*Actualizar el contador*/
     num_empleados = obtener_num_pacientes(2);
     rewind(cont_empleados);
-    fprintf(cont_empleados, "%d\n", num_empleados);
+    fprintf(cont_empleados, "%d\n", num_empleados + 1);
 
     fclose(reg_empleados);
     fclose(cont_empleados);
