@@ -436,5 +436,3 @@ void lista_proyectos_act()
     }
 }
 
-// Hay un gran problema en el codigo, no estoy seguro de cuantos empleados hay asociados a cada
-// Puedo inicializar los valores en el arreglo
