@@ -204,8 +204,6 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
     // Buscar el proyecto con la clave proporcionada
     for (i = 0; i < num_proyectos; i++)
     {
-        printf("\nLa clave con la que se esta comparando es: %s\n", proyectos[i].clave_proy);
-
         if ((strcmp(proyectos[i].clave_proy, clave_proyecto) == 0))
         {
             fclose(reg_proyectos);

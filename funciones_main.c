@@ -111,7 +111,6 @@ void registro_emp()
     }
     printf("\nIngresando a registro_emp\n");
 
-    printf("la clave del empleado dada es: %s", empleado.clave_proy);
     proyecto = buscar_proyecto(empleado.clave_proy);
     if (strcmp(proyecto.nom, "") == 0)
     {
@@ -119,14 +118,26 @@ void registro_emp()
         return;
     }
 
+    reg_proyectos = fopen("registro_proyectos.dat", "rb");
+
+    if (reg_proyectos == NULL)
+    {
+        printf("\nNo se pudo registrar el empleado, error al abrir el archivo\n\n");
+        return;
+    }
+
+    fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
+
     // Aumenta en 1 el numero de empleados registrados en el proyecto seleccionado
     for (int i = 0; i < num_proyectos; i++)
     {
-        if (strcmp(proyectos[i].clave_proy, proyecto.clave_proy))
+        if (strcmp(proyectos[i].clave_proy, empleado.clave_proy) == 0)
         {
             proyectos[i].empleados_registrados = proyectos[i].empleados_registrados + 1;
         }
     }
+
+    fclose(reg_proyectos);
 
     // Reescribe el proyecto modificado
     reg_proyectos = fopen("registro_proyectos.dat", "wb+");
@@ -186,7 +197,7 @@ void registro_emp()
 
     printf("Código Postal: ");
     scanf("%d", &empleado.direccion.CP);
-
+    getchar();
     printf("Municipio (máximo 30 caracteres): ");
     scanf(" %[^\n]%*c", empleado.direccion.municipio);
 
@@ -200,6 +211,8 @@ void registro_emp()
     fclose(reg_empleados);
     fclose(reg_proyectos);
     fclose(cont_empleados);
+
+    printf("\n\nSe guardo correctamente el empleado\n");
 }
 
 // Da de baja un proyecto y todos los empleados asociados a este
