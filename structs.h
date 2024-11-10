@@ -15,6 +15,15 @@ typedef struct
     int fecha_f;
 } PROYECTO;
 
+typedef struct
+{
+    char calle[30];
+    char colonia[30];
+    int numero;
+    int CP;
+    char municipio[30];
+} DIRECCION;
+
 // Estructura para el registro de empleados
 typedef struct
 {
@@ -30,15 +39,6 @@ typedef struct
     float tarifa_mensual;
     DIRECCION direccion;
 } EMPLEADO;
-
-typedef struct
-{
-    char calle[30];
-    char colonia[30];
-    int numero;
-    int CP;
-    char municipio[30];
-} DIRECCION;
 
 // Estructura para el registro de usuarios
 typedef struct
@@ -68,11 +68,11 @@ typedef struct
 } NOMINA;
 
 // Instancias nulas o por defecto para cada estructura
-const PROYECTO null_proyecto = {"", "", 0.0, 0, 0};
-const EMPLEADO null_empleado = {"", 0, "", "", 0, "", 0};
-const USUARIO null_usuario = {"", ""};
-const HORAS_EMPLEADO null_horas_empleado = {0, "", 0};
-const NOMINA null_nomina = {0, "", 0, 0, {0, "", 0}};
+extern const PROYECTO null_proyecto;
+extern const EMPLEADO null_empleado;
+extern const USUARIO null_usuario;
+extern const HORAS_EMPLEADO null_horas_empleado;
+extern const NOMINA null_nomina;
 
 #endif // Cierre para MAX_EMPLEADOS
 #endif // Cierre para PROJECT_H

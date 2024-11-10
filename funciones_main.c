@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include <structs.h>
 #include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 #include "structs.h"
 #include "funciones_utils.h"
 
@@ -9,34 +10,56 @@ void registro_proy()
     FILE *reg_proyectos, *cont_proyectos;
     int num_proyectos;
 
-    // Open the files
-    reg_proyectos = fopen("registro_proyectos.dat", "ab+");
-    cont_proyectos = fopen("contador_proyectos.txt", "r+");
+    num_proyectos = obtener_num(1);
 
-    if (reg_proyectos == NULL || cont_proyectos == NULL)
+    // Abrir los archivos
+    reg_proyectos = fopen("registro_proyectos.dat", "ab");
+    if (reg_proyectos == NULL)
     {
-        printf("\nProblemas para abrir el archivo...");
+        perror("Error al abrir archivo registro_proyectos.dat");
         return;
+    }
+
+    cont_proyectos = fopen("contador_proyectos.txt", "r+");
+    if (cont_proyectos == NULL)
+    {
+        cont_proyectos = fopen("contador_proyectos.txt", "w+");
+        if (cont_proyectos == NULL)
+        {
+            printf("El archivo contador_proyectos.txt no pudo ser abierto correctamente");
+            fclose(reg_proyectos);
+            fclose(cont_proyectos);
+
+            return;
+        }
     }
 
     PROYECTO proy;
     proy.empleados_registrados = 0;
     printf("\nCaptura de los datos del proyecto:\n");
-    printf("\nClave de su proyecto: ");
-    scanf("%s", proy.clave_proy);
-    printf("\nNombre del proyecto: ");
-    scanf("%s", proy.nom);
+    getchar();
+
+    printf("\nClave de su proyecto (maximo 10 caracteres): ");
+    fgets(proy.clave_proy, sizeof(proy.clave_proy), stdin);
+    proy.clave_proy[strcspn(proy.clave_proy, "\n")] = 0;
+
+    printf("\nNombre del proyecto (maximo 30 caracteres): ");
+    fgets(proy.nom, sizeof(proy.nom), stdin);
+    proy.nom[strcspn(proy.nom, "\n")] = 0;
+
     printf("\nMonto para proyecto: ");
     scanf("%f", &proy.monto);
+    getchar();
 
     printf("\nFecha de inicio dia/mes/ano: ");
     scanf("%d", &proy.fecha_i);
-    printf("\nFecha de inicio dia/mes/ano: ");
+    getchar();
+    printf("\nFecha de final dia/mes/ano: ");
     scanf("%d", &proy.fecha_f);
+    getchar();
 
     fwrite(&proy, sizeof(PROYECTO), 1, reg_proyectos);
 
-    num_proyectos = obtener_num(1);
     /*Actualizar el contador*/
 
     rewind(cont_proyectos);
@@ -55,6 +78,13 @@ void registro_emp()
     num_proyectos = obtener_num(1);
     PROYECTO proyectos[num_proyectos];
     num_empleados = obtener_num(2);
+
+    if (num_proyectos == 0)
+    {
+        printf("\nNo hay ningun proyecto al cual registrar un empleado\n\n");
+        return;
+    }
+
     reg_empleados = fopen("registro_empleados.dat", "ab+");
     cont_empleados = fopen("contador_empleados.txt", "r+");
     if (reg_empleados == NULL || cont_empleados == NULL)
@@ -63,23 +93,25 @@ void registro_emp()
         return;
     }
 
+    printf("\nIngresando a registro_emp\n");
+
     /*Capturar los datos en la estructura*/
     EMPLEADO empleado;
+    getchar();
     printf("Ingrese clave del proyecto (máximo 10 caracteres): ");
-    scanf("%9s", empleado.clave_proy);
+    fgets(empleado.clave_proy, sizeof(empleado.clave_proy), stdin);
+    empleado.clave_proy[strcspn(empleado.clave_proy, "\n")] = 0;
 
-    // Modificamos el numero de empleados asociados con el proyecto
-    reg_proyectos = fopen("registro_proyectos.dat", "rb+");
+    printf("\nIngresando a registro_emp\n");
 
-    if (reg_proyectos == NULL)
+    if (num_proyectos == 0)
     {
-        printf("\nNo se pudo abrir el archivo de proyectos\n");
-        fclose(reg_empleados);
-        fclose(reg_proyectos);
-        fclose(cont_empleados);
+        printf("\nNo hay proyectos en los cuales buscar");
         return;
     }
+    printf("\nIngresando a registro_emp\n");
 
+    printf("la clave del empleado dada es: %s", empleado.clave_proy);
     proyecto = buscar_proyecto(empleado.clave_proy);
     if (strcmp(proyecto.nom, "") == 0)
     {
@@ -173,87 +205,127 @@ void registro_emp()
 // Da de baja un proyecto y todos los empleados asociados a este
 void baja_proyecto()
 {
-    // num_empleados_proyecto es el numero de empleados asociados al proyecto seleccionado
+
+    printf("Entrando a la función baja_proyecto...\n");
+
     FILE *reg_empleados, *reg_proyectos;
     char clave_proyecto[10];
     int i, num_empleados_proyecto;
     int num_proyectos = obtener_num(1);
     int num_empleados = obtener_num(2);
-    reg_proyectos = fopen("reg_proyectos.dat", "rb+");
-    reg_empleados = fopen("reg_empleados.dat", "rb+");
-    if (reg_empleados == NULL || reg_proyectos == NULL)
+
+    printf("El numero de empleados actualmente es: %d\n", num_empleados);
+    if (num_empleados == 0)
     {
-        printf("\nEl proyecto no se pudo dar de baja");
+        printf("\nNo hay ningun empleado registrado, asegurese de registrar primero al menos uno\n\n");
         return;
     }
 
-    // Carga los proyectos y los empleados a memoria
-    PROYECTO proyectos[num_proyectos];
-    EMPLEADO empleados[num_empleados];
-    fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
-    fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
+    printf("Intentando abrir archivos...\n");
 
-    fclose(reg_proyectos);
-    fclose(reg_empleados);
+    reg_proyectos = fopen("registro_proyectos.dat", "rb");
+    reg_empleados = fopen("registro_empleados.dat", "rb");
 
-    // Abrimos los archivos en escritura, borrando todos los datos para sobreescribirlos
-
-    reg_proyectos = fopen("reg_proyectos.dat", "wb+");
-    reg_empleados = fopen("reg_empleados.dat", "wb+");
-    if (reg_empleados == NULL || reg_proyectos == NULL)
+    if (reg_proyectos == NULL || reg_empleados == NULL)
     {
-        printf("\nEl proyecto no se pudo dar de baja");
+        perror("Error al abrir los archivos");
         return;
+    }
+
+    printf("Archivos abiertos correctamente. Cargando datos...\n");
+
+    PROYECTO proyectos[num_proyectos];
+
+    EMPLEADO empleados[num_empleados];
+
+    size_t proyectos_leidos = fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
+    if (proyectos_leidos != num_proyectos)
+    {
+        perror("Error al leer registro_proyectos.dat");
+        fclose(reg_proyectos);
+        fclose(reg_empleados);
+        return;
+    }
+
+    size_t empleados_leidos = fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
+    if (empleados_leidos != num_empleados)
+    {
+        perror("Error al leer registro_empleados.dat");
+        fclose(reg_proyectos);
+        fclose(reg_empleados);
+        return;
+    }
+
+    printf("Datos cargados correctamente.\n");
+
+    reg_proyectos = fopen("registro_proyectos.dat", "wb");
+    reg_empleados = fopen("registro_empleados.dat", "wb");
+
+    if (reg_proyectos == NULL || reg_empleados == NULL)
+    {
+        perror("Error al abrir los archivos para escritura");
+        return; // Si no se pueden abrir para escritura, la función termina
     }
 
     printf("Ingrese la clave del proyecto: ");
-    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+    getchar();
+    if (fgets(clave_proyecto, sizeof(clave_proyecto), stdin) == NULL)
+    {
+        perror("Error al leer la clave del proyecto");
+        fclose(reg_proyectos);
+        fclose(reg_empleados);
+        return;
+    }
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
 
-    // Modifica registros_proyectos.dat, eliminando el proyecto con la clave dada
     for (int i = 0; i < num_proyectos; i++)
     {
-        if (strcmp(proyectos[i].clave_proy, clave_proyecto) == 0)
+
+        printf("\nLa clave del proyecto es %s: \n", clave_proyecto);
+        printf("\nLa clave del proyecto siendo comparada es %s: \n", proyectos[i].clave_proy);
+        printf("\nEl nombre del proyecto siendo comparado es %s: \n", proyectos[i].nom);
+        if (strcmp(proyectos[i].clave_proy, clave_proyecto) != 0)
         {
-            continue;
+
+            fwrite(&proyectos[i], sizeof(PROYECTO), 1, reg_proyectos);
         }
         else
         {
-            fwrite(&proyectos[i], sizeof(PROYECTO), 1, reg_proyectos);
+            continue;
         }
     }
-    // Modifica registros_empleados.dat, eliminando los empleados asociados a
-    // El proyecto con la clave dada
+
     num_empleados_proyecto = 0;
     for (int i = 0; i < num_empleados; i++)
     {
-        if (strcmp(empleados[i].clave_proy, clave_proyecto) == 0)
+        if (strcmp(empleados[i].clave_proy, clave_proyecto) != 0)
         {
-            num_empleados_proyecto++;
-            continue;
+            fwrite(&empleados[i], sizeof(EMPLEADO), 1, reg_empleados);
         }
         else
         {
-            fwrite(&empleados[i], sizeof(EMPLEADO), 1, reg_empleados);
+            num_empleados_proyecto++;
         }
     }
 
     fclose(reg_empleados);
     fclose(reg_proyectos);
 
-    // Modificamos la cantidad de empleados y de proyectos en los archivos de contadores
     FILE *contador_empleados, *contador_proyectos;
     contador_empleados = fopen("contador_proyectos.txt", "w");
     contador_proyectos = fopen("contador_empleados.txt", "w");
     if (contador_empleados == NULL || contador_proyectos == NULL)
     {
-        printf("\nNo se pudieron actualizar los archivos de contadores\n\n");
+        perror("No se pudieron abrir los archivos de contadores");
     }
     else
     {
         fprintf(contador_empleados, "%d\n", num_empleados - num_empleados_proyecto);
         fprintf(contador_proyectos, "%d\n", num_proyectos - 1);
     }
+
+    printf("\nSe dio de baja al proyecto existosamente\n");
+
     fclose(contador_empleados);
     fclose(contador_proyectos);
 }
@@ -266,7 +338,7 @@ void baja_empleado()
     char clave_proyecto[10];
     int i, num_emp;
     int num_empleados = obtener_num(2);
-    reg_empleados = fopen("reg_empleados.dat", "rb+");
+    reg_empleados = fopen("registro_empleados.dat", "rb+");
     if (reg_empleados == NULL)
     {
         printf("\nEl empleado no se pudo dar de baja");
@@ -281,7 +353,7 @@ void baja_empleado()
 
     // Abrimos los archivos en escritura, borrando todos los datos para sobreescribirlos
 
-    reg_empleados = fopen("reg_empleados.dat", "wb+");
+    reg_empleados = fopen("registro_empleados.dat", "wb+");
     if (reg_empleados == NULL)
     {
         printf("\nEl proyecto no se pudo dar de baja");
@@ -313,8 +385,8 @@ void baja_empleado()
 
     // Modificamos la cantidad de empleados en el archivo de contadores
     FILE *contador_empleados;
-    contador_empleados = fopen("contador_proyectos.txt", "w");
-    if (contador_empleados)
+    contador_empleados = fopen("contador_empleados.txt", "w");
+    if (contador_empleados == NULL)
     {
         printf("\nNo se pudieron actualizar los archivos de contadores\n\n");
         return;
@@ -417,7 +489,7 @@ void lista_proyectos_act()
     for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
 
-        char rol[30];
+        char rol[40];
         // Extrae los componentes de la fecha
         int fecha_nac = empleados_proyecto[i].fecha_nac;
         int dia = fecha_nac / 10000;       // Los dos primeros dígitos representan el día
@@ -524,7 +596,7 @@ void lista_nomina()
     for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
 
-        char rol[30];
+        char rol[40];
 
         switch (nomina.empleados[i].perfil)
         {

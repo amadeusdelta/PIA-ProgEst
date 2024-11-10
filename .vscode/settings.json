@@ -1,0 +1,6 @@
+{
+    "C_Cpp.default.compilerPath": "C:\\cygwin64\\bin\\gcc.exe",
+    "files.associations": {
+        "stat.h": "c"
+    }
+}

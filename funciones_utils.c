@@ -1,15 +1,22 @@
 #include <stdio.h>
-#include <structs.h>
+#include "structs.h"
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h> // Para mkdir en Unix y Windows
 #include <errno.h>
+
+const PROYECTO null_proyecto = {"", "", 0.0, 0, 0};
+const EMPLEADO null_empleado = {"", 0, "", "", 0, "", 0};
+const USUARIO null_usuario = {"", ""};
+const HORAS_EMPLEADO null_horas_empleado = {0, "", 0};
+const NOMINA null_nomina = {0, "", 0, 0, {0, "", 0}};
 
 // La opcion 1 obtiene el numero de proyectos, la 2 el numero de empleados y la 3 obtiene el numero de nominas
 int obtener_num(int opc)
 {
     FILE *archivo_contador;
     int num;
-    char nombre_archivo[20];
+    char nombre_archivo[30];
     switch (opc)
     {
     case 1:
@@ -119,7 +126,7 @@ EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
         }
     }
 
-    printf("\nNo se pudo encontrar el proyecto seleccionado");
+    printf("\nNo se pudo encontrar el empleado seleccionado");
     return null_empleado;
 }
 
@@ -137,7 +144,7 @@ EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
     {
         printf("No se pudo abrir el archivo correctamente\n");
         free(empleados_proyecto);
-        return &null_empleado; // Retorna un puntero al empleado nulo
+        return NULL;
     }
 
     num_empleados = obtener_num(2);
@@ -157,7 +164,7 @@ EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
     if (j == 0)
     {
         free(empleados_proyecto);
-        return &null_empleado; // Retorna un puntero al empleado "nulo" si no hay coincidencias
+        return NULL; // Retorna un puntero al empleado "nulo" si no hay coincidencias
     }
 
     return empleados_proyecto; // Retorna el arreglo de empleados asociados al proyecto
@@ -168,9 +175,16 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
     int i, num_proyectos;
     FILE *reg_proyectos;
     num_proyectos = obtener_num(1);
+
+    if (num_proyectos == 0)
+    {
+        printf("\nNo hay proyectos sobre los cuales realizar una busqueda\n\n");
+        return null_proyecto; // Retornar directamente si no hay proyectos
+    }
+
     PROYECTO proyectos[num_proyectos];
 
-    reg_proyectos = fopen("registro_proyectos.dat", "rb+");
+    reg_proyectos = fopen("registro_proyectos.dat", "rb");
 
     if (reg_proyectos == NULL)
     {
@@ -178,16 +192,28 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
         return null_proyecto;
     }
 
+    // Leer los proyectos desde el archivo
+    size_t leidos = fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
+    if (leidos != num_proyectos)
+    {
+        printf("Error al leer los proyectos desde el archivo.\n");
+        fclose(reg_proyectos);
+        return null_proyecto;
+    }
+
+    // Buscar el proyecto con la clave proporcionada
     for (i = 0; i < num_proyectos; i++)
     {
-        // Verifica si el empleado esta asociado con el proyecto y tiene el
-        //  Numero de empleado correcto
+        printf("\nLa clave con la que se esta comparando es: %s\n", proyectos[i].clave_proy);
+
         if ((strcmp(proyectos[i].clave_proy, clave_proyecto) == 0))
         {
-            return proyectos[i];
+            fclose(reg_proyectos);
+            return proyectos[i]; // Retorna el proyecto encontrado
         }
     }
 
-    printf("\nNo se pudo encontrar el proyecto seleccionado");
-    return null_proyecto;
+    fclose(reg_proyectos);
+    printf("\nNo se pudo encontrar el proyecto seleccionado\n");
+    return null_proyecto; // Retorna un proyecto vacío si no se encuentra
 }
