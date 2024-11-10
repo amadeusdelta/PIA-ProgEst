@@ -454,13 +454,19 @@ void lista_proyectos_act()
 void lista_proyectos_act()
 {
     char clave_proyecto[10];
-    FILE *reg_nominas;
+    FILE *reg_nominas, *archivo;
+    char nom_archivo[30];
     PROYECTO proyecto;
     NOMINA nomina;
     int num_nominas, i, f = 0;
     num_nominas = obtener_num(3);
     NOMINA nominas[num_nominas];
+
     reg_nominas = fopen("registros_nominas.txt", "rb+");
+
+    const char *directorio = "Nominas";
+    // Crea el directorio si no existe
+    crear_directorio(directorio);
 
     if (reg_nominas == NULL)
     {
@@ -483,14 +489,26 @@ void lista_proyectos_act()
 
     if (f == 0)
     {
-        printf("No se encontro una nomina con la clave del proyecto asociado");
+        printf("\nNo se encontro una nomina con la clave del proyecto asociado");
+        return;
     }
 
     printf("Ingrese la clave del proyecto: ");
     fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
     proyecto = buscar_proyecto(clave_proyecto);
+
+    // Le da el formato correcto a el nombre del archivo en el cual se guardara el reporte
+    snprintf(nom_archivo, sizeof(nom_archivo), "Nominas/%s_%d_%02d.txt", proyecto.clave_proy, nomina.ano_creacion, nomina.mes_creacion);
+    archivo = fopen(nom_archivo, "w+");
+    if (archivo == NULL)
+    {
+        printf("\nEl archivo para generar el reporte no se pudo abrir correctamente");
+    }
+
     printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
+    printf("NOMINA DE: \t%s\t%d\n\n", num_a_mes(nomina.mes_creacion), nomina.ano_creacion);
+
     printf("NO EMPLEADO\tNOMBRE\tPERFIL\tTARIFA\tHORAS\tSUELDO");
 
     for (int i = 0; i < proyecto.empleados_registrados; i++)
@@ -498,7 +516,7 @@ void lista_proyectos_act()
 
         char rol[30];
 
-        switch (empleados_proyecto[i].perfil)
+        switch (nomina.empleados[i].perfil)
         {
         case 1:
             strcpy(rol, "Líder de proyecto");
@@ -519,7 +537,46 @@ void lista_proyectos_act()
             strcpy(rol, "Rol desconocido");
             break;
         }
+        // Imprime a pantalla
+        printf("%d\t%s\t%s\t%d-%d-%d\t%s\t%f", nomina.empleados[i].num_emp, nomina.empleados[i].nom, rol, nomina.empleados[i].tarifa_h, nomina.empleados[i].horas_trabajadas, nomina.empleados->sueldo_mensual);
 
-        printf("%d\t%s\t%s\t%d-%d-%d\t%s\t%f", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre, rol, empleados_proyecto[i].tarifa_h, empleados_proyecto[i].ho, empl);
+        // Imprime al archivo
+
+        fprintf(archivo, "%d\t%s\t%s\t%.2f\t%d\t%.2f\n",
+                nomina.empleados[i].num_emp,
+                nomina.empleados[i].nom,
+                rol,
+                nomina.empleados[i].tarifa_h,
+                nomina.empleados[i].horas_trabajadas,
+                nomina.empleados[i].sueldo_mensual);
+    }
+
+    // Se guarda el archivo o no dependiendo de la eleccion del usuario
+    // Notese que el archivo ya esta creado
+    int opc;
+    printf("\nQuiere guardar el reporte?\n1)Guardar\n2)No guardar\nOpcion: ");
+    scanf("%d", &opc);
+
+    if (opc == 1)
+    {
+        printf("\nEl archivo se guardó exitosamente\n\n");
+        return;
+    }
+    else if (opc == 2)
+    {
+        if (remove(nom_archivo) == 0)
+        {
+            printf("\nEl archivo %s se eliminó exitosamente\n", nom_archivo);
+        }
+        else
+        {
+            perror("\nError al intentar eliminar el archivo");
+        }
+        printf("\nRetornando al menú principal...\n\n");
+        return;
+    }
+    else
+    {
+        printf("\nOpción inválida, retornando al menú principal...\n\n");
     }
 }

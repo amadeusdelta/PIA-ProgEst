@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <structs.h>
 #include <string.h>
+#include <sys/stat.h> // Para mkdir en Unix y Windows
+#include <errno.h>
 
 // La opcion 1 obtiene el numero de proyectos, la 2 el numero de empleados y la 3 obtiene el numero de nominas
 int obtener_num(int opc)
@@ -46,6 +48,48 @@ int obtener_num(int opc)
     }
     fclose(archivo_contador);
     return num;
+}
+
+void crear_directorio(const char *path)
+{
+#ifdef _WIN32
+    mkdir(path); // Windows: crea el directorio si no existe
+#else
+    mkdir(path, 0777); // Unix/Linux: crea el directorio con permisos
+#endif
+}
+
+const char *num_a_mes(int num)
+{
+    switch (num)
+    {
+    case 1:
+        return "Enero";
+    case 2:
+        return "Febrero";
+    case 3:
+        return "Marzo";
+    case 4:
+        return "Abril";
+    case 5:
+        return "Mayo";
+    case 6:
+        return "Junio";
+    case 7:
+        return "Julio";
+    case 8:
+        return "Agosto";
+    case 9:
+        return "Septiembre";
+    case 10:
+        return "Octubre";
+    case 11:
+        return "Noviembre";
+    case 12:
+        return "Diciembre";
+    default:
+        return "Mes desconocido"; // Maneja el caso de entrada inválida
+    }
 }
 
 // Dada la clave del proyecto y el numero de empleado, retorna el
