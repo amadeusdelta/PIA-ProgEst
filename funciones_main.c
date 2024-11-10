@@ -415,13 +415,12 @@ void registrar_nomina()
 {
     int mes, ano, num_empleados, num_nominas;
     float total_nomina = 0;
-    char clave_proyecto[10];
+    char clave_proyecto[11];
     EMPLEADO *empleados_proyecto;
     NOMINA nomina;
     PROYECTO proyecto;
     FILE *reg_nominas, *cont_nominas;
 
-    num_empleados = obtener_num(2);
     num_nominas = obtener_num(3);
     reg_nominas = fopen("registro_nominas.dat", "ab+");
     cont_nominas = fopen("contador_nominas.dat", "wb+");
@@ -432,7 +431,11 @@ void registrar_nomina()
         return;
     }
 
-    num_empleados = obtener_num(2);
+    if (num_empleados == 0)
+    {
+        printf("\nNo hay empleados registrados\n\n");
+        return;
+    }
 
     printf("\nMes: ");
     scanf("%d", &nomina.mes_creacion);
@@ -445,6 +448,7 @@ void registrar_nomina()
 
     proyecto = buscar_proyecto(clave_proyecto);
 
+    // Verifica si el proyecto existe o no
     if ((strcmp(proyecto.clave_proy, "") == 0))
     {
         printf("\nEl proyecto no existe");
@@ -457,16 +461,17 @@ void registrar_nomina()
     printf("\nIngrese el numero de horas trabajadas para los empleados asociados al proyecto\n\n");
 
     int horas_trabajadas;
-    for (int i = 0; i < proyecto.empleados_registrados; i++)
+    int i;
+    for (i = 0; i < proyecto.empleados_registrados; i++)
     {
-        printf("No empleado: %d  %s", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre);
+        printf("\nNo empleado: %d  %s", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre);
         printf("\nHoras trabajadas: ");
         scanf("%f", &horas_trabajadas);
-        total_nomina += horas_trabajadas * empleados_proyecto[i].tarifa_h;
+        total_nomina += (horas_trabajadas * empleados_proyecto[i].tarifa_h);
 
         // Llena la subestructura de horas_empleados de la nomina para poder generar el reporte
         // Posteriormente
-        nomina.empleados[i].num_emp = empleados_proyecto->num_emp;
+        nomina.empleados[i].num_emp = empleados_proyecto[i].num_emp;
         nomina.empleados[i].horas_trabajadas = horas_trabajadas;
         nomina.empleados[i].sueldo_mensual = horas_trabajadas * empleados_proyecto[i].tarifa_h;
         nomina.empleados[i].tarifa_h = empleados_proyecto[i].tarifa_h;

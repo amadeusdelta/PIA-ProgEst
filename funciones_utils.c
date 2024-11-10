@@ -133,30 +133,40 @@ EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
 // Da un array con todos los empleados asociados a un proyecto determinado
 EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
 {
-    int i, j = 0, num_empleados;
+    int i, j = 0, num_empleados, num_empleados_proyecto;
     FILE *reg_empleados;
-    EMPLEADO empleados[MAX_EMPLEADOS];
-    EMPLEADO *empleados_proyecto;
-    empleados_proyecto = malloc(sizeof(EMPLEADO) * MAX_EMPLEADOS);
+    PROYECTO proyecto;
+    proyecto = buscar_proyecto(clave_proyecto);
+    num_empleados_proyecto = proyecto.empleados_registrados;
 
-    reg_empleados = fopen("registro_empleados.dat", "rb+");
+    if (num_empleados_proyecto == 0)
+    {
+        printf("\nNo hay empleados asociados con el proyecto dado\n\n");
+        return NULL;
+    }
+
+    EMPLEADO *empleados_proyecto;
+    // En empleados_proyecto se guardan los empleados asociados al proyecto
+    empleados_proyecto = (EMPLEADO *)calloc(num_empleados_proyecto, sizeof(EMPLEADO));
+    // Lee todos los empleados a memoria
+    num_empleados = obtener_num(2);
+    EMPLEADO empleados[num_empleados];
+    reg_empleados = fopen("registro_empleados.dat", "rb");
+
     if (reg_empleados == NULL)
     {
-        printf("No se pudo abrir el archivo correctamente\n");
+        printf("\nEl archivo no se pudo abrir correctamente\n\n");
         free(empleados_proyecto);
         return NULL;
     }
 
-    num_empleados = obtener_num(2);
     fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
-    fclose(reg_empleados);
 
-    // Llenar empleados_proyecto solo con los empleados que pertenecen al proyecto
     for (i = 0; i < num_empleados; i++)
     {
         if (strcmp(empleados[i].clave_proy, clave_proyecto) == 0)
         {
-            empleados_proyecto[j++] = empleados[i]; // Agrega el empleado al arreglo y aumenta el índice
+            empleados_proyecto[j++] = empleados[i];
         }
     }
 
@@ -164,8 +174,12 @@ EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
     if (j == 0)
     {
         free(empleados_proyecto);
-        return NULL; // Retorna un puntero al empleado "nulo" si no hay coincidencias
+        fclose(reg_empleados);
+
+        printf("\nNo se encontro ningun empleado asociado al proyecto\n\n");
+        return NULL;
     }
+    fclose(reg_empleados);
 
     return empleados_proyecto; // Retorna el arreglo de empleados asociados al proyecto
 }
