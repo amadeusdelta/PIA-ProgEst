@@ -15,6 +15,10 @@ int obtener_num(int opc)
         break;
     case 2:
         strcpy(nombre_archivo, "contador_empleados.txt");
+
+    case 3:
+        strcpy(nombre_archivo, "contador_nominas.txt");
+
     default:
         printf("\nOpción invalida ingresada para archivo de contadores.");
     }

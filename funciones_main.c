@@ -20,6 +20,7 @@ void registro_proy()
     }
 
     PROYECTO proy;
+    proy.empleados_registrados = 0;
     printf("\nCaptura de los datos del proyecto:\n");
     printf("\nClave de su proyecto: ");
     scanf("%s", proy.clave_proy);
@@ -44,11 +45,16 @@ void registro_proy()
     fclose(reg_proyectos);
     fclose(cont_proyectos);
 }
-
+// Registra un empleado, aumentando en 1 el numero de empleados asociados con el proyecto
+// Al cual este pertenece
 void registro_emp()
 {
-    FILE *reg_empleados, *cont_empleados;
-    int num_empleados;
+    FILE *reg_empleados, *cont_empleados, *reg_proyectos;
+    PROYECTO proyecto;
+    int num_empleados, num_proyectos;
+    num_proyectos = obtener_num(1);
+    PROYECTO proyectos[num_proyectos];
+    num_empleados = obtener_num_pacientes(2);
     reg_empleados = fopen("registro_empleados.dat", "ab+");
     cont_empleados = fopen("contador_empleados.txt", "r+");
     if (reg_empleados == NULL || cont_empleados == NULL)
@@ -61,6 +67,47 @@ void registro_emp()
     EMPLEADO empleado;
     printf("Ingrese clave del proyecto (máximo 10 caracteres): ");
     scanf("%9s", empleado.clave_proy);
+
+    // Modificamos el numero de empleados asociados con el proyecto
+    reg_proyectos = fopen("registros_proyectos.txt", "rb+");
+
+    if (reg_proyectos == NULL)
+    {
+        printf("\nNo se pudo abrir el archivo de proyectos\n");
+        fclose(reg_empleados);
+        fclose(reg_proyectos);
+        fclose(cont_empleados);
+        return;
+    }
+
+    proyecto = buscar_proyecto(empleado.clave_proy);
+    if (strcmp(proyecto.nom, "") == 0)
+    {
+        printf("Error al encontrar el proyecto con la clave dada, no existe");
+        return;
+    }
+
+    // Aumenta en 1 el numero de empleados registrados en el proyecto seleccionado
+    for (int i = 0; i < num_proyectos; i++)
+    {
+        if (strcmp(proyectos[i].clave_proy, proyecto.clave_proy))
+        {
+            proyectos[i].empleados_registrados = proyectos[i].empleados_registrados + 1;
+        }
+    }
+
+    // Reescribe el proyecto modificado
+    reg_proyectos = fopen("registros_proyectos.dat", "wb+");
+    if (reg_proyectos == NULL)
+    {
+        printf("\nNo se pudo abrir el archivo de proyectos\n");
+        fclose(reg_empleados);
+        fclose(reg_proyectos);
+        fclose(cont_empleados);
+        return;
+    }
+
+    fwrite(&proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
 
     printf("Ingrese número de empleado: ");
     scanf("%d", &empleado.num_emp);
@@ -115,11 +162,11 @@ void registro_emp()
     fwrite(&empleado, sizeof(EMPLEADO), 1, reg_empleados);
 
     /*Actualizar el contador*/
-    num_empleados = obtener_num_pacientes(2);
     rewind(cont_empleados);
     fprintf(cont_empleados, "%d\n", num_empleados + 1);
 
     fclose(reg_empleados);
+    fclose(reg_proyectos);
     fclose(cont_empleados);
 }
 
@@ -285,18 +332,23 @@ void registrar_nomina()
     float total_nomina = 0;
     char clave_proyecto[10];
     EMPLEADO *empleados_proyecto;
+    NOMINA nomina;
+    FILE *reg_nominas;
+
+    reg_nominas = fopen("registros_nominas.dat", "ab+");
+
     num_empleados = obtener_num(2);
 
     printf("\nMes: ");
-    scanf("%d", &mes);
+    scanf("%d", &nomina.mes_creacion);
     printf("\nAno: ");
-    scanf("%d", &ano);
+    scanf("%d", &nomina.ano_creacion);
 
     printf("\nClave_proyecto: ");
     fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
 
-    if ((buscar_proyecto(clave_proyecto).clave_proy == ""))
+    if ((strcmp(buscar_proyecto(clave_proyecto).clave_proy, "") == 0))
     {
         printf("\nEl proyecto no existe");
         return;
@@ -336,4 +388,4 @@ void lista_proyectos_act()
 }
 
 // Hay un gran problema en el codigo, no estoy seguro de cuantos empleados hay asociados a cada
-// Puedo inicializar los valores en el arreglo 
+// Puedo inicializar los valores en el arreglo
