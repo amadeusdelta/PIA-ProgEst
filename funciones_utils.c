@@ -2,7 +2,7 @@
 #include <structs.h>
 #include <string.h>
 
-// La opcion 1 obtiene el numero de proyectos, la 2 el numero de empleados
+// La opcion 1 obtiene el numero de proyectos, la 2 el numero de empleados y la 3 obtiene el numero de nominas
 int obtener_num(int opc)
 {
     FILE *archivo_contador;

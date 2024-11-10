@@ -328,15 +328,24 @@ void baja_empleado()
 // Función para registrar una nómina
 void registrar_nomina()
 {
-    int mes, ano, num_empleados;
+    int mes, ano, num_empleados, num_nominas;
     float total_nomina = 0;
     char clave_proyecto[10];
     EMPLEADO *empleados_proyecto;
     NOMINA nomina;
     PROYECTO proyecto;
-    FILE *reg_nominas;
+    FILE *reg_nominas, *cont_nominas;
 
+    num_empleados = obtener_num(2);
+    num_nominas = obtener_num(3);
     reg_nominas = fopen("registros_nominas.dat", "ab+");
+    cont_nominas = fopen("contadores_nominas.dat", "wb+");
+
+    if (reg_nominas == NULL || cont_nominas == NULL)
+    {
+        printf("\nLos archivos no se pudieron abrir correctamente.");
+        return;
+    }
 
     num_empleados = obtener_num(2);
 
@@ -370,11 +379,13 @@ void registrar_nomina()
         scanf("%f", &horas_trabajadas);
         total_nomina += horas_trabajadas * empleados_proyecto[i].tarifa_h;
 
-        // Llena la subestructura de horas_empleados de la nomina
-        strcpy(nomina.empleados[i].clave_proy, clave_proyecto);
+        // Llena la subestructura de horas_empleados de la nomina para poder generar el reporte
+        // Posteriormente
         nomina.empleados[i].num_emp = empleados_proyecto->num_emp;
         nomina.empleados[i].horas_trabajadas = horas_trabajadas;
         nomina.empleados[i].sueldo_mensual = horas_trabajadas * empleados_proyecto[i].tarifa_h;
+        nomina.empleados[i].tarifa_h = empleados_proyecto[i].tarifa_h;
+        nomina.empleados[i].perfil = empleados_proyecto[i].perfil;
     }
 
     printf("\nTotal de nomina: %f", total_nomina);
@@ -382,8 +393,12 @@ void registrar_nomina()
     // Se escribe la nomina al archivo
     fwrite(&nomina, sizeof(NOMINA), 1, reg_nominas);
 
-    free(empleados_proyecto);
+    // Se actualiza el numero de nominas registradas
+    rewind(cont_nominas);
+    fprintf(cont_nominas, "%d\n", num_nominas + 1);
+
     fclose(reg_nominas);
+    fclose(cont_nominas);
 }
 
 void lista_proyectos_act()
@@ -436,3 +451,75 @@ void lista_proyectos_act()
     }
 }
 
+void lista_proyectos_act()
+{
+    char clave_proyecto[10];
+    FILE *reg_nominas;
+    PROYECTO proyecto;
+    NOMINA nomina;
+    int num_nominas, i, f = 0;
+    num_nominas = obtener_num(3);
+    NOMINA nominas[num_nominas];
+    reg_nominas = fopen("registros_nominas.txt", "rb+");
+
+    if (reg_nominas == NULL)
+    {
+        printf("\nHubo un error al abrir los registros de las nominas.");
+        return;
+    }
+    fread(&nominas, sizeof(NOMINA), num_nominas, reg_nominas);
+
+    // Esto no es suficiente para determinar unicamente la nomina que se busca
+    // Hay que usar algo como la fecha de registro
+    for (i = 0; i < num_nominas; i++)
+    {
+        if (strcmp(nominas[i].clave_proy, clave_proyecto) == 0)
+        {
+            nomina = nominas[i];
+            f = 1;
+            break;
+        }
+    }
+
+    if (f == 0)
+    {
+        printf("No se encontro una nomina con la clave del proyecto asociado");
+    }
+
+    printf("Ingrese la clave del proyecto: ");
+    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+    clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+    proyecto = buscar_proyecto(clave_proyecto);
+    printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
+    printf("NO EMPLEADO\tNOMBRE\tPERFIL\tTARIFA\tHORAS\tSUELDO");
+
+    for (int i = 0; i < proyecto.empleados_registrados; i++)
+    {
+
+        char rol[30];
+
+        switch (empleados_proyecto[i].perfil)
+        {
+        case 1:
+            strcpy(rol, "Líder de proyecto");
+            break;
+        case 2:
+            strcpy(rol, "Administrador de Base de Datos");
+            break;
+        case 3:
+            strcpy(rol, "Analista");
+            break;
+        case 4:
+            strcpy(rol, "Programador");
+            break;
+        case 5:
+            strcpy(rol, "Tester");
+            break;
+        default:
+            strcpy(rol, "Rol desconocido");
+            break;
+        }
+
+        printf("%d\t%s\t%s\t%d-%d-%d\t%s\t%f", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre, rol, empleados_proyecto[i].tarifa_h, empleados_proyecto[i].ho, empl);
+    }
+}

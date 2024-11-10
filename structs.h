@@ -51,7 +51,9 @@ typedef struct
 typedef struct
 {
     int num_emp;
-    char clave_proy[10];
+    char nom[30];
+    int perfil;
+    float tarifa_h;
     int horas_trabajadas;
     float sueldo_mensual;
 } HORAS_EMPLEADO;
