@@ -130,6 +130,52 @@ EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
     return null_empleado;
 }
 
+PROYECTO buscar_proyecto(char clave_proyecto[10])
+{
+    int i, num_proyectos;
+    FILE *reg_proyectos;
+    num_proyectos = obtener_num(1);
+
+    if (num_proyectos == 0)
+    {
+        printf("\nNo hay proyectos sobre los cuales realizar una busqueda\n\n");
+        return null_proyecto; // Retornar directamente si no hay proyectos
+    }
+
+    PROYECTO proyectos[num_proyectos];
+
+    reg_proyectos = fopen("registro_proyectos.dat", "rb");
+
+    if (reg_proyectos == NULL)
+    {
+        printf("No se pudo abrir el archivo correctamente");
+        return null_proyecto;
+    }
+
+    // Leer los proyectos desde el archivo
+    size_t leidos = fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
+    if (leidos != num_proyectos)
+    {
+        printf("Error al leer los proyectos desde el archivo.\n");
+        fclose(reg_proyectos);
+        return null_proyecto;
+    }
+
+    // Buscar el proyecto con la clave proporcionada
+    for (i = 0; i < num_proyectos; i++)
+    {
+        if ((strcmp(proyectos[i].clave_proy, clave_proyecto) == 0))
+        {
+            fclose(reg_proyectos);
+            return proyectos[i]; // Retorna el proyecto encontrado
+        }
+    }
+
+    fclose(reg_proyectos);
+    printf("\nNo se pudo encontrar el proyecto seleccionado\n");
+    return null_proyecto; // Retorna un proyecto vacío si no se encuentra
+}
+
 // Da un array con todos los empleados asociados a un proyecto determinado
 EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
 {
@@ -182,50 +228,4 @@ EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
     fclose(reg_empleados);
 
     return empleados_proyecto; // Retorna el arreglo de empleados asociados al proyecto
-}
-
-PROYECTO buscar_proyecto(char clave_proyecto[10])
-{
-    int i, num_proyectos;
-    FILE *reg_proyectos;
-    num_proyectos = obtener_num(1);
-
-    if (num_proyectos == 0)
-    {
-        printf("\nNo hay proyectos sobre los cuales realizar una busqueda\n\n");
-        return null_proyecto; // Retornar directamente si no hay proyectos
-    }
-
-    PROYECTO proyectos[num_proyectos];
-
-    reg_proyectos = fopen("registro_proyectos.dat", "rb");
-
-    if (reg_proyectos == NULL)
-    {
-        printf("No se pudo abrir el archivo correctamente");
-        return null_proyecto;
-    }
-
-    // Leer los proyectos desde el archivo
-    size_t leidos = fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
-    if (leidos != num_proyectos)
-    {
-        printf("Error al leer los proyectos desde el archivo.\n");
-        fclose(reg_proyectos);
-        return null_proyecto;
-    }
-
-    // Buscar el proyecto con la clave proporcionada
-    for (i = 0; i < num_proyectos; i++)
-    {
-        if ((strcmp(proyectos[i].clave_proy, clave_proyecto) == 0))
-        {
-            fclose(reg_proyectos);
-            return proyectos[i]; // Retorna el proyecto encontrado
-        }
-    }
-
-    fclose(reg_proyectos);
-    printf("\nNo se pudo encontrar el proyecto seleccionado\n");
-    return null_proyecto; // Retorna un proyecto vacío si no se encuentra
 }
