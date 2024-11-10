@@ -60,10 +60,9 @@ typedef struct
 {
     int num_emp;
     char clave_proy[10];
-    int total_horas_trabajadas;
     int mes_creacion;
     int ano_creacion;
-    HORAS_EMPLEADO empleado[MAX_EMPLEADOS];
+    HORAS_EMPLEADO empleados[MAX_EMPLEADOS];
 } NOMINA;
 
 // Instancias nulas o por defecto para cada estructura

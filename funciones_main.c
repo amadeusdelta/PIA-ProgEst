@@ -333,6 +333,7 @@ void registrar_nomina()
     char clave_proyecto[10];
     EMPLEADO *empleados_proyecto;
     NOMINA nomina;
+    PROYECTO proyecto;
     FILE *reg_nominas;
 
     reg_nominas = fopen("registros_nominas.dat", "ab+");
@@ -348,26 +349,41 @@ void registrar_nomina()
     fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
 
-    if ((strcmp(buscar_proyecto(clave_proyecto).clave_proy, "") == 0))
+    proyecto = buscar_proyecto(clave_proyecto);
+
+    if ((strcmp(proyecto.clave_proy, "") == 0))
     {
         printf("\nEl proyecto no existe");
         return;
     }
 
+    strcpy(nomina.clave_proy, clave_proyecto);
+
     empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
     printf("\nIngrese el numero de horas trabajadas para los empleados asociados al proyecto\n\n");
 
     int horas_trabajadas;
-    for (int i = 0; i < MAX_EMPLEADOS; i++)
+    for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
         printf("No empleado: %d  %s", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre);
         printf("\nHoras trabajadas: ");
         scanf("%f", &horas_trabajadas);
-
         total_nomina += horas_trabajadas * empleados_proyecto[i].tarifa_h;
+
+        // Llena la subestructura de horas_empleados de la nomina
+        strcpy(nomina.empleados[i].clave_proy, clave_proyecto);
+        nomina.empleados[i].num_emp = empleados_proyecto->num_emp;
+        nomina.empleados[i].horas_trabajadas = horas_trabajadas;
+        nomina.empleados[i].sueldo_mensual = horas_trabajadas * empleados_proyecto[i].tarifa_h;
     }
 
     printf("\nTotal de nomina: %f", total_nomina);
+
+    // Se escribe la nomina al archivo
+    fwrite(&nomina, sizeof(NOMINA), 1, reg_nominas);
+
+    free(empleados_proyecto);
+    fclose(reg_nominas);
 }
 
 void lista_proyectos_act()
@@ -381,9 +397,10 @@ void lista_proyectos_act()
     proyecto = buscar_proyecto(clave_proyecto);
     empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
     printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
-    for (size_t i = 0; i < count; i++)
+
+    for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
-        /* code */
+        printf("");
     }
 }
 
