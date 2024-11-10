@@ -98,10 +98,10 @@ EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
 {
     int i, num_empleados;
     FILE *reg_empleados;
+    num_empleados = obtener_num(2);
     EMPLEADO empleados[num_empleados];
 
-    reg_empleados = fopen("registros_empleados.dat", "rb+");
-    num_empleados = obtener_num(2);
+    reg_empleados = fopen("registro_empleados.dat", "rb+");
 
     if (reg_empleados == NULL)
     {
@@ -132,7 +132,7 @@ EMPLEADO *leer_empleados_proyecto(char clave_proyecto[10])
     EMPLEADO *empleados_proyecto;
     empleados_proyecto = malloc(sizeof(EMPLEADO) * MAX_EMPLEADOS);
 
-    reg_empleados = fopen("registros_empleados.dat", "rb+");
+    reg_empleados = fopen("registro_empleados.dat", "rb+");
     if (reg_empleados == NULL)
     {
         printf("No se pudo abrir el archivo correctamente\n");
@@ -167,10 +167,10 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
 {
     int i, num_proyectos;
     FILE *reg_proyectos;
+    num_proyectos = obtener_num(1);
     PROYECTO proyectos[num_proyectos];
 
-    reg_proyectos = fopen("registros_proyectos.dat", "rb+");
-    num_proyectos = obtener_num(1);
+    reg_proyectos = fopen("registro_proyectos.dat", "rb+");
 
     if (reg_proyectos == NULL)
     {

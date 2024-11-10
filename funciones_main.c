@@ -54,7 +54,7 @@ void registro_emp()
     int num_empleados, num_proyectos;
     num_proyectos = obtener_num(1);
     PROYECTO proyectos[num_proyectos];
-    num_empleados = obtener_num_pacientes(2);
+    num_empleados = obtener_num(2);
     reg_empleados = fopen("registro_empleados.dat", "ab+");
     cont_empleados = fopen("contador_empleados.txt", "r+");
     if (reg_empleados == NULL || cont_empleados == NULL)
@@ -69,7 +69,7 @@ void registro_emp()
     scanf("%9s", empleado.clave_proy);
 
     // Modificamos el numero de empleados asociados con el proyecto
-    reg_proyectos = fopen("registros_proyectos.txt", "rb+");
+    reg_proyectos = fopen("registro_proyectos.dat", "rb+");
 
     if (reg_proyectos == NULL)
     {
@@ -97,7 +97,7 @@ void registro_emp()
     }
 
     // Reescribe el proyecto modificado
-    reg_proyectos = fopen("registros_proyectos.dat", "wb+");
+    reg_proyectos = fopen("registro_proyectos.dat", "wb+");
     if (reg_proyectos == NULL)
     {
         printf("\nNo se pudo abrir el archivo de proyectos\n");
@@ -338,8 +338,8 @@ void registrar_nomina()
 
     num_empleados = obtener_num(2);
     num_nominas = obtener_num(3);
-    reg_nominas = fopen("registros_nominas.dat", "ab+");
-    cont_nominas = fopen("contadores_nominas.dat", "wb+");
+    reg_nominas = fopen("registro_nominas.dat", "ab+");
+    cont_nominas = fopen("contador_nominas.dat", "wb+");
 
     if (reg_nominas == NULL || cont_nominas == NULL)
     {
@@ -464,7 +464,7 @@ void lista_nomina()
     num_nominas = obtener_num(3);
     NOMINA nominas[num_nominas];
 
-    reg_nominas = fopen("registros_nominas.txt", "rb+");
+    reg_nominas = fopen("registro_nominas.dat", "rb+");
 
     const char *directorio = "Nominas";
     // Crea el directorio si no existe
