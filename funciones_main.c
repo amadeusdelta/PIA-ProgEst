@@ -451,14 +451,16 @@ void lista_proyectos_act()
     }
 }
 
-void lista_proyectos_act()
+void lista_nomina()
 {
     char clave_proyecto[10];
+    // Archivo es el archivo al cual se guardara el reporte en caso de que el
+    //  usuario seleccione la opcion para hacerlo
     FILE *reg_nominas, *archivo;
     char nom_archivo[30];
     PROYECTO proyecto;
     NOMINA nomina;
-    int num_nominas, i, f = 0;
+    int num_nominas, mes_creacion, ano_creacion, i, f = 0;
     num_nominas = obtener_num(3);
     NOMINA nominas[num_nominas];
 
@@ -475,15 +477,28 @@ void lista_proyectos_act()
     }
     fread(&nominas, sizeof(NOMINA), num_nominas, reg_nominas);
 
+    printf("Ingrese la clave del proyecto: ");
+    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+    clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+    proyecto = buscar_proyecto(clave_proyecto);
+
+    printf("\nIngrese el ano de creacion del proyecto: ");
+    scanf("%d", &ano_creacion);
+    printf("\nIngrese el mes de creacion del proyecto: ");
+    scanf("%d", &mes_creacion);
+
     // Esto no es suficiente para determinar unicamente la nomina que se busca
     // Hay que usar algo como la fecha de registro
     for (i = 0; i < num_nominas; i++)
     {
         if (strcmp(nominas[i].clave_proy, clave_proyecto) == 0)
         {
-            nomina = nominas[i];
-            f = 1;
-            break;
+            if ((nominas[i].mes_creacion == mes_creacion) && (nominas[i].ano_creacion == ano_creacion))
+            {
+                nomina = nominas[i];
+                f = 1;
+                break;
+            }
         }
     }
 
@@ -492,11 +507,6 @@ void lista_proyectos_act()
         printf("\nNo se encontro una nomina con la clave del proyecto asociado");
         return;
     }
-
-    printf("Ingrese la clave del proyecto: ");
-    fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
-    clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
-    proyecto = buscar_proyecto(clave_proyecto);
 
     // Le da el formato correcto a el nombre del archivo en el cual se guardara el reporte
     snprintf(nom_archivo, sizeof(nom_archivo), "Nominas/%s_%d_%02d.txt", proyecto.clave_proy, nomina.ano_creacion, nomina.mes_creacion);
