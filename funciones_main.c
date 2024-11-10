@@ -429,7 +429,7 @@ void registrar_nomina()
     }
 
     reg_nominas = fopen("registro_nominas.dat", "ab+");
-    cont_nominas = fopen("contador_nominas.dat", "wb");
+    cont_nominas = fopen("contador_nominas.txt", "w");
 
     if (reg_nominas == NULL || cont_nominas == NULL)
     {
