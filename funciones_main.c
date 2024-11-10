@@ -397,10 +397,42 @@ void lista_proyectos_act()
     proyecto = buscar_proyecto(clave_proyecto);
     empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
     printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
+    printf("NO EMPLEADO\tNOMBRE\tCURP\tFECHA NAC\tPERFIL\tTARIFA");
 
     for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
-        printf("");
+
+        char rol[30];
+        // Extrae los componentes de la fecha
+        int fecha_nac = empleados_proyecto[i].fecha_nac;
+        int dia = fecha_nac / 10000;       // Los dos primeros dígitos representan el día
+        int mes = (fecha_nac / 100) % 100; // Los dos siguientes dígitos representan el mes
+        int ano = fecha_nac % 100;         // Los dos últimos dígitos representan el año
+
+        switch (empleados_proyecto[i].perfil)
+        {
+        case 1:
+            strcpy(rol, "Líder de proyecto");
+            break;
+        case 2:
+            strcpy(rol, "Administrador de Base de Datos");
+            break;
+        case 3:
+            strcpy(rol, "Analista");
+            break;
+        case 4:
+            strcpy(rol, "Programador");
+            break;
+        case 5:
+            strcpy(rol, "Tester");
+            break;
+        default:
+            strcpy(rol, "Rol desconocido");
+            break;
+        }
+
+        printf("%d\t%s\t%s\t%d-%d-%d\t%s\t%f", empleados_proyecto[i].num_emp,
+               empleados_proyecto[i].nombre, empleados_proyecto[i].curp, rol, empleados_proyecto[i].tarifa_h);
     }
 }
 
