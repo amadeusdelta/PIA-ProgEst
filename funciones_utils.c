@@ -17,10 +17,10 @@ int obtener_num(int opc)
         break;
     case 2:
         strcpy(nombre_archivo, "contador_empleados.txt");
-
+        break;
     case 3:
         strcpy(nombre_archivo, "contador_nominas.txt");
-
+        break;
     default:
         printf("\nOpción invalida ingresada para archivo de contadores.");
     }
@@ -119,7 +119,7 @@ EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
         }
     }
 
-    printf("\nNo se pudo encontrar al empleado seleccionado");
+    printf("\nNo se pudo encontrar el proyecto seleccionado");
     return null_empleado;
 }
 
@@ -188,6 +188,6 @@ PROYECTO buscar_proyecto(char clave_proyecto[10])
         }
     }
 
-    printf("\nNo se pudo encontrar al empleado seleccionado");
+    printf("\nNo se pudo encontrar el proyecto seleccionado");
     return null_proyecto;
 }
