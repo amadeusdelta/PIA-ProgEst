@@ -420,57 +420,70 @@ void registrar_nomina()
     NOMINA nomina;
     PROYECTO proyecto;
     FILE *reg_nominas, *cont_nominas;
-
     num_nominas = obtener_num(3);
-    reg_nominas = fopen("registro_nominas.dat", "ab+");
-    cont_nominas = fopen("contador_nominas.dat", "wb+");
-
-    if (reg_nominas == NULL || cont_nominas == NULL)
+    num_empleados = obtener_num(2);
+    if (num_empleados == 0)
     {
-        printf("\nLos archivos no se pudieron abrir correctamente.");
+        printf("\n\nNo hay empleados sobre los cuales obtener la nomina\n\n");
         return;
     }
 
-    if (num_empleados == 0)
+    reg_nominas = fopen("registro_nominas.dat", "ab+");
+    cont_nominas = fopen("contador_nominas.dat", "wb");
+
+    if (reg_nominas == NULL || cont_nominas == NULL)
     {
-        printf("\nNo hay empleados registrados\n\n");
+        printf("\nLos archivos no se pudieron abrir correctamente.\n");
+        fclose(reg_nominas);
+        fclose(cont_nominas);
         return;
     }
 
     printf("\nMes: ");
     scanf("%d", &nomina.mes_creacion);
-    printf("\nAno: ");
+    printf("\nAño: ");
     scanf("%d", &nomina.ano_creacion);
 
-    printf("\nClave_proyecto: ");
+    while (getchar() != '\n')
+        ;
+
+    printf("\nClave proyecto: ");
     fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
 
     proyecto = buscar_proyecto(clave_proyecto);
 
-    // Verifica si el proyecto existe o no
-    if ((strcmp(proyecto.clave_proy, "") == 0))
+    // Revisa si el proyecto existe
+    if (strcmp(proyecto.clave_proy, "") == 0)
     {
-        printf("\nEl proyecto no existe");
+        printf("\nEl proyecto no existe.\n");
+        fclose(reg_nominas);
+        fclose(cont_nominas);
         return;
     }
 
     strcpy(nomina.clave_proy, clave_proyecto);
 
     empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
-    printf("\nIngrese el numero de horas trabajadas para los empleados asociados al proyecto\n\n");
+    if (empleados_proyecto == NULL)
+    {
+        fclose(reg_nominas);
+        fclose(cont_nominas);
+        return;
+    }
 
-    int horas_trabajadas;
+    printf("\nIngrese el número de horas trabajadas para los empleados asociados al proyecto.\n\n");
+
     int i;
     for (i = 0; i < proyecto.empleados_registrados; i++)
     {
         printf("\nNo empleado: %d  %s", empleados_proyecto[i].num_emp, empleados_proyecto[i].nombre);
         printf("\nHoras trabajadas: ");
-        scanf("%f", &horas_trabajadas);
+        int horas_trabajadas;
+        scanf("%d", &horas_trabajadas);
+
         total_nomina += (horas_trabajadas * empleados_proyecto[i].tarifa_h);
 
-        // Llena la subestructura de horas_empleados de la nomina para poder generar el reporte
-        // Posteriormente
         nomina.empleados[i].num_emp = empleados_proyecto[i].num_emp;
         nomina.empleados[i].horas_trabajadas = horas_trabajadas;
         nomina.empleados[i].sueldo_mensual = horas_trabajadas * empleados_proyecto[i].tarifa_h;
@@ -478,17 +491,18 @@ void registrar_nomina()
         nomina.empleados[i].perfil = empleados_proyecto[i].perfil;
     }
 
-    printf("\nTotal de nomina: %f", total_nomina);
+    printf("\nTotal de nómina: %.2f\n", total_nomina);
 
-    // Se escribe la nomina al archivo
     fwrite(&nomina, sizeof(NOMINA), 1, reg_nominas);
 
-    // Se actualiza el numero de nominas registradas
+    // Actualiza el contador del numero de nominas
+    num_nominas++;
     rewind(cont_nominas);
-    fprintf(cont_nominas, "%d\n", num_nominas + 1);
+    fprintf(cont_nominas, "%d\n", num_nominas);
 
     fclose(reg_nominas);
     fclose(cont_nominas);
+    free(empleados_proyecto);
 }
 
 void lista_proyectos_act()
