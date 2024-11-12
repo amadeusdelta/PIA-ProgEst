@@ -116,8 +116,6 @@ void registro_emp()
         return;
     }
 
-    printf("\nIngresando a registro_emp\n");
-
     /*Capturar los datos en la estructura*/
     EMPLEADO empleado;
     getchar();
@@ -125,14 +123,11 @@ void registro_emp()
     fgets(empleado.clave_proy, sizeof(empleado.clave_proy), stdin);
     empleado.clave_proy[strcspn(empleado.clave_proy, "\n")] = 0;
 
-    printf("\nIngresando a registro_emp\n");
-
     if (num_proyectos == 0)
     {
         printf("\nNo hay proyectos en los cuales buscar");
         return;
     }
-    printf("\nIngresando a registro_emp\n");
 
     proyecto = buscar_proyecto(empleado.clave_proy);
     if (strcmp(proyecto.nom, "") == 0)
@@ -592,11 +587,12 @@ void lista_proyectos_act()
     {
         printf("\nNo se pudieron leer correctamente los empleados asociados con el proyecto dado\n");
         free(empleados_proyecto);
+        return;
     }
 
     printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
 
-    printf("NO EMPLEADO\tNOMBRE\tCURP\tFECHA NAC\tPERFIL\tTARIFA");
+    printf("\nNO EMPLEADO\tNOMBRE\tCURP\tFECHA NAC\tPERFIL\tTARIFA\n");
 
     for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
@@ -610,10 +606,10 @@ void lista_proyectos_act()
         switch (empleados_proyecto[i].perfil)
         {
         case 1:
-            strcpy(rol, "Líder de proyecto");
+            strcpy(rol, "Líder");
             break;
         case 2:
-            strcpy(rol, "Administrador de Base de Datos");
+            strcpy(rol, "Administrador");
             break;
         case 3:
             strcpy(rol, "Analista");
@@ -625,7 +621,7 @@ void lista_proyectos_act()
             strcpy(rol, "Tester");
             break;
         default:
-            strcpy(rol, "Rol desconocido");
+            strcpy(rol, "Desconocido");
             break;
         }
 

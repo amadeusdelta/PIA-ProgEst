@@ -11,6 +11,8 @@ typedef struct
     float monto;
     // Maximo 100 empleados registrados
     int empleados_registrados;
+    // La fecha del registro del proyecto no se usa nunca, no esta implentado
+    // en ninguna parte del codigo de forma funcional, pues no es necesario
     int fecha_i;
     int fecha_f;
 } PROYECTO;
