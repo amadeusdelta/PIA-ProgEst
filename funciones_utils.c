@@ -99,37 +99,6 @@ const char *num_a_mes(int num)
     }
 }
 
-// Dada la clave del proyecto y el numero de empleado, retorna el
-//  Empleado asociado a este
-EMPLEADO buscar_empleado(char clave_proyecto[10], int num_emp)
-{
-    int i, num_empleados;
-    FILE *reg_empleados;
-    num_empleados = obtener_num(2);
-    EMPLEADO empleados[num_empleados];
-
-    reg_empleados = fopen("registro_empleados.dat", "rb+");
-
-    if (reg_empleados == NULL)
-    {
-        printf("No se pudo abrir el archivo correctamente");
-        return null_empleado;
-    }
-
-    for (i = 0; i < num_empleados; i++)
-    {
-        // Verifica si el empleado esta asociado con el proyecto y tiene el
-        //  Numero de empleado correcto
-        if ((strcmp(empleados[i].clave_proy, clave_proyecto) == 0) && (empleados[i].num_emp == num_emp))
-        {
-            return empleados[i];
-        }
-    }
-
-    printf("\nNo se pudo encontrar el empleado seleccionado");
-    return null_empleado;
-}
-
 PROYECTO buscar_proyecto(char clave_proyecto[10])
 {
     int i, num_proyectos;
