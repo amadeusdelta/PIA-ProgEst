@@ -71,29 +71,29 @@ const char *num_a_mes(int num)
     switch (num)
     {
     case 1:
-        return "Enero";
+        return "Ene";
     case 2:
-        return "Febrero";
+        return "Feb";
     case 3:
-        return "Marzo";
+        return "Mar";
     case 4:
-        return "Abril";
+        return "Abr";
     case 5:
-        return "Mayo";
+        return "May";
     case 6:
-        return "Junio";
+        return "Jun";
     case 7:
         return "Julio";
     case 8:
-        return "Agosto";
+        return "Ago";
     case 9:
-        return "Septiembre";
+        return "Sep";
     case 10:
-        return "Octubre";
+        return "Oct";
     case 11:
-        return "Noviembre";
+        return "Nov";
     case 12:
-        return "Diciembre";
+        return "Dic";
     default:
         return "Mes desconocido"; // Maneja el caso de entrada inválida
     }

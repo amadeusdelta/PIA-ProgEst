@@ -468,12 +468,17 @@ void baja_empleado()
         fprintf(contador_empleados, "%d\n", num_empleados - 1);
     }
 
-    printf("\nSe dio de baja al proyecto existosamente\n");
+    printf("\nSe dio de baja al empleado existosamente\n");
 
     fclose(contador_empleados);
 }
 
 // Función para registrar una nómina
+// Aqui es posible que sea una buena idea modificar nomina
+// para agregar el numero de empleados registrados al proyecto en ese momento
+// De esa forma para imprimir los empleados de la nomina no se requiere que el
+// proyecto este activo o no
+// Para pensar
 void registrar_nomina()
 {
     int mes, ano, num_empleados, num_nominas;
@@ -517,7 +522,7 @@ void registrar_nomina()
     proyecto = buscar_proyecto(clave_proyecto);
 
     // Revisa si el proyecto existe
-    if (strcmp(proyecto.clave_proy, "") == 0)
+    if ((strcmp(proyecto.clave_proy, "") == 0) || (proyecto.empleados_registrados == 0))
     {
         printf("\nEl proyecto no existe.\n");
         fclose(reg_nominas);
@@ -576,17 +581,25 @@ void lista_proyectos_act()
     char clave_proyecto[10];
     PROYECTO proyecto;
     EMPLEADO *empleados_proyecto;
+    getchar();
     printf("Ingrese la clave del proyecto: ");
     fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
     proyecto = buscar_proyecto(clave_proyecto);
-    empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
+    empleados_proyecto = leer_empleados_proyecto(proyecto.clave_proy);
+
+    if (empleados_proyecto == NULL)
+    {
+        printf("\nNo se pudieron leer correctamente los empleados asociados con el proyecto dado\n");
+        free(empleados_proyecto);
+    }
+
     printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
+
     printf("NO EMPLEADO\tNOMBRE\tCURP\tFECHA NAC\tPERFIL\tTARIFA");
 
     for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
-
         char rol[40];
         // Extrae los componentes de la fecha
         int fecha_nac = empleados_proyecto[i].fecha_nac;
@@ -616,14 +629,16 @@ void lista_proyectos_act()
             break;
         }
 
-        printf("%d\t%s\t%s\t%d-%d-%d\t%s\t%f", empleados_proyecto[i].num_emp,
-               empleados_proyecto[i].nombre, empleados_proyecto[i].curp, rol, empleados_proyecto[i].tarifa_h);
+        printf("%d\t%s\t%s\t%d-%s-%d\t%s\t%f", empleados_proyecto[i].num_emp,
+               empleados_proyecto[i].nombre, empleados_proyecto[i].curp, dia, num_a_mes(mes), ano, rol, empleados_proyecto[i].tarifa_h);
     }
+
+    free(empleados_proyecto);
 }
 
 void lista_nomina()
 {
-    char clave_proyecto[10];
+    char clave_proyecto[11];
     // Archivo es el archivo al cual se guardara el reporte en caso de que el
     //  usuario seleccione la opcion para hacerlo
     FILE *reg_nominas, *archivo;
@@ -634,7 +649,7 @@ void lista_nomina()
     num_nominas = obtener_num(3);
     NOMINA nominas[num_nominas];
 
-    reg_nominas = fopen("registro_nominas.dat", "rb+");
+    reg_nominas = fopen("registro_nominas.dat", "rb");
 
     const char *directorio = "Nominas";
     // Crea el directorio si no existe
@@ -647,14 +662,17 @@ void lista_nomina()
     }
     fread(&nominas, sizeof(NOMINA), num_nominas, reg_nominas);
 
+    fclose(reg_nominas);
+
+    getchar();
     printf("Ingrese la clave del proyecto: ");
     fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
     proyecto = buscar_proyecto(clave_proyecto);
 
-    printf("\nIngrese el ano de creacion del proyecto: ");
+    printf("\nIngrese el ano de creacion de la nomina: ");
     scanf("%d", &ano_creacion);
-    printf("\nIngrese el mes de creacion del proyecto: ");
+    printf("\nIngrese el mes de creacion de la nomina: ");
     scanf("%d", &mes_creacion);
 
     // Esto no es suficiente para determinar unicamente la nomina que se busca
@@ -680,16 +698,16 @@ void lista_nomina()
 
     // Le da el formato correcto a el nombre del archivo en el cual se guardara el reporte
     snprintf(nom_archivo, sizeof(nom_archivo), "Nominas/%s_%d_%02d.txt", proyecto.clave_proy, nomina.ano_creacion, nomina.mes_creacion);
-    archivo = fopen(nom_archivo, "w+");
+    archivo = fopen(nom_archivo, "w");
     if (archivo == NULL)
     {
         printf("\nEl archivo para generar el reporte no se pudo abrir correctamente");
     }
 
-    printf("PROYECTO\t%s\t%s\n\n", proyecto.clave_proy, proyecto.nom);
+    printf("PROYECTO\t%s\t%s\n\n", nomina.clave_proy, proyecto.nom);
     printf("NOMINA DE: \t%s\t%d\n\n", num_a_mes(nomina.mes_creacion), nomina.ano_creacion);
 
-    printf("NO EMPLEADO\tNOMBRE\tPERFIL\tTARIFA\tHORAS\tSUELDO");
+    printf("NO EMPLEADO\tNOMBRE\t\t\tPERFIL\t\tTARIFA\tHORAS\tSUELDO\n\n");
 
     for (int i = 0; i < proyecto.empleados_registrados; i++)
     {
@@ -699,10 +717,10 @@ void lista_nomina()
         switch (nomina.empleados[i].perfil)
         {
         case 1:
-            strcpy(rol, "Líder de proyecto");
+            strcpy(rol, "Líder");
             break;
         case 2:
-            strcpy(rol, "Administrador de Base de Datos");
+            strcpy(rol, "Administrador");
             break;
         case 3:
             strcpy(rol, "Analista");
@@ -714,15 +732,18 @@ void lista_nomina()
             strcpy(rol, "Tester");
             break;
         default:
-            strcpy(rol, "Rol desconocido");
+            strcpy(rol, "Desconocido");
             break;
         }
-        // Imprime a pantalla
-        printf("%d\t%s\t%s\t%d-%d-%d\t%s\t%f", nomina.empleados[i].num_emp, nomina.empleados[i].nom, rol, nomina.empleados[i].tarifa_h, nomina.empleados[i].horas_trabajadas, nomina.empleados->sueldo_mensual);
+        printf("%d\t%s\t\t\t%s\t\t%.2f\t%d\t%.2f\n",
+               nomina.empleados[i].num_emp,
+               nomina.empleados[i].nom,
+               rol,
+               nomina.empleados[i].tarifa_h,
+               nomina.empleados[i].horas_trabajadas,
+               nomina.empleados[i].sueldo_mensual);
 
-        // Imprime al archivo
-
-        fprintf(archivo, "%d\t%s\t%s\t%.2f\t%d\t%.2f\n",
+        fprintf(archivo, "%d\t%s\t\t\t%s\t\t%.2f\t%d\t%.2f\n",
                 nomina.empleados[i].num_emp,
                 nomina.empleados[i].nom,
                 rol,
@@ -740,6 +761,7 @@ void lista_nomina()
     if (opc == 1)
     {
         printf("\nEl archivo se guardó exitosamente\n\n");
+        fclose(archivo);
         return;
     }
     else if (opc == 2)
@@ -753,10 +775,13 @@ void lista_nomina()
             perror("\nError al intentar eliminar el archivo");
         }
         printf("\nRetornando al menú principal...\n\n");
+        fclose(archivo);
         return;
     }
     else
     {
         printf("\nOpción inválida, retornando al menú principal...\n\n");
+        fclose(archivo);
+        return;
     }
 }
