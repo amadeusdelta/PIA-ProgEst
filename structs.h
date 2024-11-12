@@ -60,7 +60,6 @@ typedef struct
 
 typedef struct
 {
-    int num_emp;
     char clave_proy[10];
     int mes_creacion;
     int ano_creacion;

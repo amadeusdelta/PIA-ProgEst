@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "structs.h"
+#include "funciones_utils.h"
 void crear_proyectos()
 {
     FILE *file = fopen("registro_proyectos.dat", "wb");
@@ -68,10 +69,50 @@ void crear_empleados()
     printf("Empleados escritos correctamente en registro_empleados.dat.\n");
 }
 
+void crear_nominas()
+{
+    FILE *file = fopen("registro_nominas.dat", "wb");
+    if (!file)
+    {
+        printf("No se pudo abrir el archivo de nominas\n");
+        return;
+    }
+
+    const char *proyectos[5] = {"PROY001", "PROY002", "PROY003", "PROY004", "PROY005"};
+    const char *nombres[4] = {"Juan Perez", "Maria Lopez", "Carlos Sanchez", "Ana Ramirez"};
+    int perfiles[4] = {1, 2, 3, 4};
+    float tarifas_h[4] = {50.0, 60.0, 70.0, 80.0};
+    int horas_trabajadas[4] = {160, 150, 140, 130};
+
+    for (int i = 0; i < 5; i++)
+    {
+        NOMINA nomina;
+        strcpy(nomina.clave_proy, proyectos[i]);
+        nomina.mes_creacion = 10;   // Example month
+        nomina.ano_creacion = 2024; // Example year
+
+        for (int j = 0; j < buscar_proyecto(nomina.clave_proy).empleados_registrados; j++)
+        {
+            nomina.empleados[j].num_emp = j + 1;
+            strcpy(nomina.empleados[j].nom, nombres[j]);
+            nomina.empleados[j].perfil = perfiles[j];
+            nomina.empleados[j].tarifa_h = tarifas_h[j];
+            nomina.empleados[j].horas_trabajadas = horas_trabajadas[j];
+            nomina.empleados[j].sueldo_mensual = tarifas_h[j] * horas_trabajadas[j];
+        }
+
+        fwrite(&nomina, sizeof(NOMINA), 1, file);
+    }
+
+    fclose(file);
+    printf("Archivo 'registros_nominas.dat' creado con éxito.\n");
+}
+
 int main()
 {
     crear_proyectos();
     crear_empleados();
+    crear_nominas();
     printf("Archivos de registro creados con éxito.\n");
     return 0;
 }

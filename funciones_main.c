@@ -5,6 +5,29 @@
 #include "structs.h"
 #include "funciones_utils.h"
 
+void imprimir_nomina(NOMINA nomina)
+{
+
+    int num_nominas = obtener_num(3);
+
+    printf("Nomina siendo imprimida...:\n\n");
+
+    printf("Clave del Proyecto: %s\n", nomina.clave_proy);
+    printf("Fecha de Creacion: %d/%d\n", nomina.mes_creacion, nomina.ano_creacion);
+
+    for (int j = 0; j < buscar_proyecto(nomina.clave_proy).empleados_registrados; j++)
+    {
+        printf("\nEmpleado #%d\n", nomina.empleados[j].num_emp);
+        printf("Nombre: %s\n", nomina.empleados[j].nom);
+        printf("Perfil: %d\n", nomina.empleados[j].perfil);
+        printf("Tarifa por Hora: %.2f\n", nomina.empleados[j].tarifa_h);
+        printf("Horas Trabajadas: %d\n", nomina.empleados[j].horas_trabajadas);
+        printf("Sueldo Mensual: %.2f\n", nomina.empleados[j].sueldo_mensual);
+    }
+
+    printf("\n-----------------------------\n");
+}
+
 void registro_proy()
 {
     FILE *reg_proyectos, *cont_proyectos;
@@ -502,7 +525,7 @@ void registrar_nomina()
         return;
     }
 
-    strcpy(nomina.clave_proy, clave_proyecto);
+    strcpy(nomina.clave_proy, proyecto.clave_proy);
 
     empleados_proyecto = leer_empleados_proyecto(clave_proyecto);
     if (empleados_proyecto == NULL)
@@ -524,12 +547,15 @@ void registrar_nomina()
 
         total_nomina += (horas_trabajadas * empleados_proyecto[i].tarifa_h);
 
+        strcpy(nomina.empleados[i].nom, empleados_proyecto[i].nombre);
         nomina.empleados[i].num_emp = empleados_proyecto[i].num_emp;
         nomina.empleados[i].horas_trabajadas = horas_trabajadas;
         nomina.empleados[i].sueldo_mensual = horas_trabajadas * empleados_proyecto[i].tarifa_h;
         nomina.empleados[i].tarifa_h = empleados_proyecto[i].tarifa_h;
         nomina.empleados[i].perfil = empleados_proyecto[i].perfil;
     }
+
+    imprimir_nomina(nomina);
 
     printf("\nTotal de nómina: %.2f\n", total_nomina);
 
