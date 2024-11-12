@@ -32,7 +32,7 @@ typedef struct
     char clave_proy[10];
     int num_emp;
     char nombre[30];
-    char curp[18];
+    char curp[19];
     int fecha_nac;
     char correo[20];
     char telefono[10];

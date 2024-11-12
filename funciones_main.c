@@ -31,11 +31,27 @@ void imprimir_nomina(NOMINA nomina)
 void registro_proy()
 {
     FILE *reg_proyectos, *cont_proyectos;
-    int num_proyectos;
+    int num_proyectos, i;
 
     num_proyectos = obtener_num(1);
+    PROYECTO proyectos[num_proyectos];
 
     // Abrir los archivos
+
+    if (num_proyectos > 0)
+    {
+        reg_proyectos = fopen("registro_proyectos.dat", "rb");
+        if (reg_proyectos == NULL)
+        {
+            perror("Error al abrir archivo registro_proyectos.dat");
+            return;
+        }
+
+        fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
+
+        fclose(reg_proyectos);
+    }
+
     reg_proyectos = fopen("registro_proyectos.dat", "ab");
     if (reg_proyectos == NULL)
     {
@@ -62,9 +78,29 @@ void registro_proy()
     printf("\nCaptura de los datos del proyecto:\n");
     getchar();
 
-    printf("\nClave de su proyecto (maximo 10 caracteres): ");
-    fgets(proy.clave_proy, sizeof(proy.clave_proy), stdin);
-    proy.clave_proy[strcspn(proy.clave_proy, "\n")] = 0;
+    char clave_proyecto[10];
+    int validacion = 0;
+    do
+    {
+
+        printf("\nClave de su proyecto (maximo 10 caracteres): ");
+        fgets(clave_proyecto, sizeof(clave_proyecto), stdin);
+        clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+        validacion = 0;
+
+        for (i = 0; i < num_proyectos; i++)
+        {
+
+            if ((strcmp(proyectos[i].clave_proy, clave_proyecto) == 0))
+            {
+                printf("\nLa clave del proyecto se repite. Ingrese otra.\n");
+                validacion = 1;
+            }
+        }
+
+    } while (validacion);
+
+    strcpy(proy.clave_proy, clave_proyecto);
 
     printf("\nNombre del proyecto (maximo 30 caracteres): ");
     fgets(proy.nom, sizeof(proy.nom), stdin);
@@ -97,7 +133,9 @@ void registro_emp()
 {
     FILE *reg_empleados, *cont_empleados, *reg_proyectos;
     PROYECTO proyecto;
-    int num_empleados, num_proyectos;
+    int num_empleados, num_proyectos, i;
+    EMPLEADO *empleados_proyecto;
+    EMPLEADO empleado;
     num_proyectos = obtener_num(1);
     PROYECTO proyectos[num_proyectos];
     num_empleados = obtener_num(2);
@@ -117,7 +155,6 @@ void registro_emp()
     }
 
     /*Capturar los datos en la estructura*/
-    EMPLEADO empleado;
     getchar();
     printf("Ingrese clave del proyecto (máximo 10 caracteres): ");
     fgets(empleado.clave_proy, sizeof(empleado.clave_proy), stdin);
@@ -130,9 +167,19 @@ void registro_emp()
     }
 
     proyecto = buscar_proyecto(empleado.clave_proy);
+    empleados_proyecto = leer_empleados_proyecto(empleado.clave_proy);
+
+    if (proyecto.empleados_registrados >= MAX_EMPLEADOS)
+    {
+        printf("\nNo se pueden agregar mas empleados al proyecto.\n\n");
+        free(empleados_proyecto);
+        return;
+    }
+
     if (strcmp(proyecto.nom, "") == 0)
     {
         printf("Error al encontrar el proyecto con la clave dada, no existe");
+        free(empleados_proyecto);
         return;
     }
 
@@ -141,13 +188,14 @@ void registro_emp()
     if (reg_proyectos == NULL)
     {
         printf("\nNo se pudo registrar el empleado, error al abrir el archivo\n\n");
+        free(empleados_proyecto);
         return;
     }
 
     fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
 
     // Aumenta en 1 el numero de empleados registrados en el proyecto seleccionado
-    for (int i = 0; i < num_proyectos; i++)
+    for (i = 0; i < num_proyectos; i++)
     {
         if (strcmp(proyectos[i].clave_proy, empleado.clave_proy) == 0)
         {
@@ -162,6 +210,7 @@ void registro_emp()
     if (reg_proyectos == NULL)
     {
         printf("\nNo se pudo abrir el archivo de proyectos\n");
+        free(empleados_proyecto);
         fclose(reg_empleados);
         fclose(reg_proyectos);
         fclose(cont_empleados);
@@ -176,8 +225,32 @@ void registro_emp()
     printf("Ingrese nombre (máximo 30 caracteres): ");
     scanf(" %[^\n]%*c", empleado.nombre);
 
-    printf("Ingrese CURP (máximo 18 caracteres): ");
-    scanf("%17s", empleado.curp);
+    char curp[19];
+    int validacion = 0;
+    do
+    {
+        printf("Ingrese CURP (máximo 18 caracteres): ");
+        scanf("%18s", curp);
+
+        for (i = 0; i < proyecto.empleados_registrados; i++)
+        {
+            validacion = 0;
+
+            if (empleados_proyecto == NULL)
+            {
+                break;
+            }
+
+            if ((strcmp(empleados_proyecto[i].curp, curp) == 0))
+            {
+                printf("\nEl curp ingresado es identico al de otro empleado ya ingresado\n");
+                validacion = 1;
+            }
+        }
+
+    } while (validacion);
+
+    strcpy(empleado.curp, curp);
 
     printf("Ingrese fecha de nacimiento (AAAAMMDD): ");
     scanf("%d", &empleado.fecha_nac);
@@ -226,6 +299,7 @@ void registro_emp()
     rewind(cont_empleados);
     fprintf(cont_empleados, "%d\n", num_empleados + 1);
 
+    free(empleados_proyecto);
     fclose(reg_empleados);
     fclose(reg_proyectos);
     fclose(cont_empleados);
@@ -238,6 +312,7 @@ void baja_proyecto()
 {
 
     FILE *reg_empleados, *reg_proyectos;
+    PROYECTO proyecto;
     char clave_proyecto[10];
     int i, num_empleados_proyecto;
     int num_proyectos = obtener_num(1);
@@ -262,7 +337,7 @@ void baja_proyecto()
 
     EMPLEADO empleados[num_empleados];
 
-    size_t proyectos_leidos = fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
+    int proyectos_leidos = fread(proyectos, sizeof(PROYECTO), num_proyectos, reg_proyectos);
     if (proyectos_leidos != num_proyectos)
     {
         perror("Error al leer registro_proyectos.dat");
@@ -271,7 +346,7 @@ void baja_proyecto()
         return;
     }
 
-    size_t empleados_leidos = fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
+    int empleados_leidos = fread(empleados, sizeof(EMPLEADO), num_empleados, reg_empleados);
     if (empleados_leidos != num_empleados)
     {
         perror("Error al leer registro_empleados.dat");
@@ -299,6 +374,31 @@ void baja_proyecto()
         return;
     }
     clave_proyecto[strcspn(clave_proyecto, "\n")] = 0;
+    proyecto = buscar_proyecto(clave_proyecto);
+
+    if (proyecto.clave_proy == "")
+    {
+        printf("\nEl proyecto con la clave dada no existe\n\n");
+        fclose(reg_empleados);
+        fclose(reg_proyectos);
+    }
+
+    printf("\nEl proyecto a borrar tiene los siguientes datos: \n\n");
+
+    int dia_i = proyecto.fecha_i / 1000000;
+    int mes_i = (proyecto.fecha_i / 10000) % 100;
+    int anio_i = proyecto.fecha_i % 10000;
+
+    int dia_f = proyecto.fecha_f / 1000000;
+    int mes_f = (proyecto.fecha_f / 10000) % 100;
+    int anio_f = proyecto.fecha_f % 10000;
+
+    printf("\nClave del Proyecto: %s", proyecto.clave_proy);
+    printf("\nNombre del Proyecto: %s", proyecto.nom);
+    printf("\nMonto del Proyecto: %.2f", proyecto.monto);
+    printf("\nEmpleados Registrados: %d", proyecto.empleados_registrados);
+    printf("\nFecha de Inicio: %02d/%02d/%04d", dia_i, mes_i, anio_i);
+    printf("\nFecha de Finalización: %02d/%02d/%04d", dia_f, mes_f, anio_f);
 
     for (int i = 0; i < num_proyectos; i++)
     {
@@ -625,7 +725,7 @@ void lista_proyectos_act()
             break;
         }
 
-        printf("%d\t%s\t%s\t%d-%s-%d\t%s\t%f", empleados_proyecto[i].num_emp,
+        printf("%d\t%s\t%s\t%d-%s-%d\t%s\t%f\n", empleados_proyecto[i].num_emp,
                empleados_proyecto[i].nombre, empleados_proyecto[i].curp, dia, num_a_mes(mes), ano, rol, empleados_proyecto[i].tarifa_h);
     }
 
