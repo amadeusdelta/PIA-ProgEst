@@ -5,29 +5,6 @@
 #include "structs.h"
 #include "funciones_utils.h"
 
-void imprimir_nomina(NOMINA nomina)
-{
-
-    int num_nominas = obtener_num(3);
-
-    printf("Nomina siendo imprimida...:\n\n");
-
-    printf("Clave del Proyecto: %s\n", nomina.clave_proy);
-    printf("Fecha de Creacion: %d/%d\n", nomina.mes_creacion, nomina.ano_creacion);
-
-    for (int j = 0; j < buscar_proyecto(nomina.clave_proy).empleados_registrados; j++)
-    {
-        printf("\nEmpleado #%d\n", nomina.empleados[j].num_emp);
-        printf("Nombre: %s\n", nomina.empleados[j].nom);
-        printf("Perfil: %d\n", nomina.empleados[j].perfil);
-        printf("Tarifa por Hora: %.2f\n", nomina.empleados[j].tarifa_h);
-        printf("Horas Trabajadas: %d\n", nomina.empleados[j].horas_trabajadas);
-        printf("Sueldo Mensual: %.2f\n", nomina.empleados[j].sueldo_mensual);
-    }
-
-    printf("\n-----------------------------\n");
-}
-
 void registro_proy()
 {
     FILE *reg_proyectos, *cont_proyectos;
@@ -355,15 +332,6 @@ void baja_proyecto()
         return;
     }
 
-    reg_proyectos = fopen("registro_proyectos.dat", "wb");
-    reg_empleados = fopen("registro_empleados.dat", "wb");
-
-    if (reg_proyectos == NULL || reg_empleados == NULL)
-    {
-        perror("Error al abrir los archivos para escritura");
-        return; // Si no se pueden abrir para escritura, la función termina
-    }
-
     printf("Ingrese la clave del proyecto: ");
     getchar();
     if (fgets(clave_proyecto, sizeof(clave_proyecto), stdin) == NULL)
@@ -381,6 +349,15 @@ void baja_proyecto()
         printf("\nEl proyecto con la clave dada no existe\n\n");
         fclose(reg_empleados);
         fclose(reg_proyectos);
+    }
+
+    reg_proyectos = fopen("registro_proyectos.dat", "wb");
+    reg_empleados = fopen("registro_empleados.dat", "wb");
+
+    if (reg_proyectos == NULL || reg_empleados == NULL)
+    {
+        perror("Error al abrir los archivos para escritura");
+        return; // Si no se pueden abrir para escritura, la función termina
     }
 
     printf("\nEl proyecto a borrar tiene los siguientes datos: \n\n");
@@ -655,8 +632,6 @@ void registrar_nomina()
         nomina.empleados[i].perfil = empleados_proyecto[i].perfil;
     }
 
-    imprimir_nomina(nomina);
-
     printf("\nTotal de nómina: %.2f\n", total_nomina);
 
     fwrite(&nomina, sizeof(NOMINA), 1, reg_nominas);
@@ -831,7 +806,7 @@ void lista_nomina()
             strcpy(rol, "Desconocido");
             break;
         }
-        printf("%d\t%s\t\t\t%s\t\t%.2f\t%d\t%.2f\n",
+        printf("%d\t%s\t\t\t%s\t\t%.2f\t%d\t%.2f",
                nomina.empleados[i].num_emp,
                nomina.empleados[i].nom,
                rol,
@@ -839,13 +814,27 @@ void lista_nomina()
                nomina.empleados[i].horas_trabajadas,
                nomina.empleados[i].sueldo_mensual);
 
-        fprintf(archivo, "%d\t%s\t\t\t%s\t\t%.2f\t%d\t%.2f\n",
+        if (nomina.empleados[i].horas_trabajadas < 180)
+        {
+            printf("\t**");
+        }
+
+        printf("\n");
+
+        fprintf(archivo, "%d\t%s\t\t\t%s\t\t%.2f\t%d\t%.2f",
                 nomina.empleados[i].num_emp,
                 nomina.empleados[i].nom,
                 rol,
                 nomina.empleados[i].tarifa_h,
                 nomina.empleados[i].horas_trabajadas,
                 nomina.empleados[i].sueldo_mensual);
+
+        if (nomina.empleados[i].horas_trabajadas < 180)
+        {
+            fprintf(archivo, "\t**");
+        }
+
+        fprintf(archivo, "\n");
     }
 
     // Se guarda el archivo o no dependiendo de la eleccion del usuario
