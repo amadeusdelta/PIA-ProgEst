@@ -674,9 +674,9 @@ void lista_proyectos_act()
         char rol[40];
         // Extrae los componentes de la fecha
         int fecha_nac = empleados_proyecto[i].fecha_nac;
-        int dia = fecha_nac / 10000;       // Los dos primeros dígitos representan el día
+        int ano = fecha_nac / 10000;       // Los dos primeros dígitos representan el día
         int mes = (fecha_nac / 100) % 100; // Los dos siguientes dígitos representan el mes
-        int ano = fecha_nac % 100;         // Los dos últimos dígitos representan el año
+        int dia = fecha_nac % 100;         // Los dos últimos dígitos representan el año
 
         switch (empleados_proyecto[i].perfil)
         {

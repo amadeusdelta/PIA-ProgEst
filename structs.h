@@ -8,7 +8,6 @@ typedef struct
     char clave_proy[10];
     char nom[30];
     float monto;
-
     int empleados_registrados;
     int fecha_i;
     int fecha_f;
@@ -40,12 +39,6 @@ typedef struct
 
 typedef struct
 {
-    char usuario[50];
-    char contrasena[50];
-} USUARIO;
-
-typedef struct
-{
     int num_emp;
     char nom[30];
     int perfil;
@@ -64,7 +57,6 @@ typedef struct
 
 extern const PROYECTO null_proyecto;
 extern const EMPLEADO null_empleado;
-extern const USUARIO null_usuario;
 extern const HORAS_EMPLEADO null_horas_empleado;
 extern const NOMINA null_nomina;
 

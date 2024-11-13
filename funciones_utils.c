@@ -7,7 +7,6 @@
 
 const PROYECTO null_proyecto = {"", "", 0.0, 0, 0};
 const EMPLEADO null_empleado = {"", 0, "", "", 0, "", 0};
-const USUARIO null_usuario = {"", ""};
 const HORAS_EMPLEADO null_horas_empleado = {0, "", 0};
 const NOMINA null_nomina = {"", 0, 0, {0, "", 0}};
 
