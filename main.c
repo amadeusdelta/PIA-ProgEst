@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "funciones_main.h"
 #include "funciones_main.h"
 
@@ -11,6 +12,34 @@ void menu_reportes();
 int main()
 {
     int opcion;
+
+    char usuario[50];
+    char contrasena[50];
+    printf("\n\t\t-----------------\n\t\tCONTROL DE NOMINA\n\t\t-----------------\n\n");
+    printf("\tNota, el usuario default es admin con contrasena 123\n\n");
+    do
+    {
+        printf("\tUsuario: ");
+        fgets(usuario, sizeof(usuario), stdin);
+        usuario[strcspn(usuario, "\n")] = 0;
+        if (strcmp(usuario, "admin") != 0)
+        {
+            printf("\n\tEl usuario ingresado es incorrecto, intente de nuevo.\n\n");
+        }
+    } while (strcmp(usuario, "admin") != 0);
+    printf("\n\n");
+    do
+    {
+        printf("\tContrasena: ");
+        fgets(contrasena, sizeof(contrasena), stdin);
+        contrasena[strcspn(contrasena, "\n")] = 0;
+        if (strcmp(contrasena, "123") != 0)
+        {
+            printf("\n\tLa contrasena es erronea, intente de nuevo.\n\n");
+        }
+    } while (strcmp(contrasena, "123") != 0);
+
+    printf("\nIngresando al control de nominas...\n\n");
 
     do
     {
