@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "funciones_main.h"
+#include "funciones_main.h"
 
 void menu_principal();
 void menu_proyecto();
@@ -13,6 +14,7 @@ int main()
 
     do
     {
+
         printf("\n--- Menú Principal ---\n");
         printf("1. Proyecto\n");
         printf("2. Empleados\n");
@@ -42,7 +44,9 @@ int main()
         default:
             printf("\nOpción inválida. Intente de nuevo.\n");
         }
+
     } while (opcion != 5);
+
     return 0;
 }
 
