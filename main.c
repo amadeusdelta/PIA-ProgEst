@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "funciones_main.h"
-#include "funciones_main.h"
 
 void menu_principal();
 void menu_proyecto();
